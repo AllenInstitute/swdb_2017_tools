@@ -5,12 +5,16 @@ A collaborative Python package built by participants of the Summer Workshop on t
 ## Usage
 
 ```Python
-import swdb
+import swdb_tools
 ```
 
 ## Installation
 
-```pip install swdb```
+```
+git clone https://github.com/AllenInstitute/swdb_tools.git
+cd swdb_tools
+pip install -e ./
+```
 
 ### Requirements
 
