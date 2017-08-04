@@ -1,9 +1,9 @@
 import setuptools
 
 setuptools.setup(
-    name="swdb_tools",
+    name="swdb_2017_tools",
     version="0.1.0",
-    url="https://github.com/AllenInstitute/swdb_tools",
+    url="https://github.com/AllenInstitute/swdb_2017_tools",
 
     author="Allen Institute for Brain Science",
     author_email="justink@alleninstitute.org",
