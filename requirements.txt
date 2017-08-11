@@ -1,0 +1,7 @@
+allensdk
+numpy
+matplotlib
+pandas
+bokeh
+
+
