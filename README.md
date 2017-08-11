@@ -6,7 +6,7 @@ A collaborative Python package built by participants of the Summer Workshop on t
 ## Usage
 
 ```Python
-import swdb_2017_tools
+import swdb17
 ```
 
 ## Installation
