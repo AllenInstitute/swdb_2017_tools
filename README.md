@@ -1,5 +1,4 @@
-[![CircleCI](https://circleci.com/gh/AllenInstitute/swdb_2017_tools.svg?style=svg)]
-(https://circleci.com/gh/AllenInstitute/swdb_2017_tools)
+[![CircleCI](https://circleci.com/gh/AllenInstitute/swdb_2017_tools.svg?style=svg)](https://circleci.com/gh/AllenInstitute/swdb_2017_tools)
 # swdb_2017_tools
 
 A collaborative Python package built by participants of the Summer Workshop on the Dynamic Brain
