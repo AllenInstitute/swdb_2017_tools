@@ -14,7 +14,7 @@ setuptools.setup(
     author_email="justink@alleninstitute.org",
 
     description="A collaborative Python package built by participants of the Summer Workshop on the Dynamic Brain",
-    long_description=open('README.rst').read(),
+    long_description=open('README.md').read(),
 
     packages=setuptools.find_packages(),
 
