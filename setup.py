@@ -1,4 +1,9 @@
 import setuptools
+with open('requirements.txt', 'r') as f:
+    required = f.read().splitlines()
+
+with open('test_requirements.txt','r') as f:
+    test_required = f.read().splitlines()
 
 setuptools.setup(
     name="swdb_2017_tools",
@@ -13,7 +18,7 @@ setuptools.setup(
 
     packages=setuptools.find_packages(),
 
-    install_requires=['allensdk'],
+    install_requires=required,
 
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
