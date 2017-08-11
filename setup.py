@@ -42,7 +42,7 @@ setup(
     author="Nicholas Cain",
     author_email='nicholasc@alleninstitute.org',
     url='https://github.com/nicain/swdb_2017_tools',
-    packages=find_packages(include=['swdb_2017_tools']),
+    packages=find_packages(include=['swdb17']),
     include_package_data=True,
     install_requires=requirements,
     license="BSD license",
