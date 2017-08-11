@@ -44,7 +44,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            py.test swdb
+            py.test tests
 
       - store_artifacts:
           path: test-reports
