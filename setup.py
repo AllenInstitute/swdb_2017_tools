@@ -1,7 +1,6 @@
-import setuptools
-
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import setuptools
 
 """The setup script."""
 
@@ -18,28 +17,12 @@ with open('requirements.txt', 'r') as f:
 with open('test_requirements.txt','r') as f:
     test_requirements = f.read().splitlines()
 
-# install_requires=required,
-# requirements = [
-#     'Click>=6.0',
-#     # TODO: put package requirements here
-# ]
-
-# setup_requirements = [
-#     'pytest-runner',
-#     # TODO(nicain): put setup requirements (distutils extensions, etc.) here
-# ]
-
-# test_requirements = [
-#     'pytest',
-#     # TODO: put package test requirements here
-# ]
-
 setup(
     name='swdb_2017_tools',
     version='0.1.0',
     description="Summer Workshop on the Dynamic Brain 2017 Tools.",
     long_description=readme,
-    author="Nicholas Cain",
+    author="Summer Workshop for Dynamic Brain 2017 Participants",
     author_email='nicholasc@alleninstitute.org',
     url='https://github.com/nicain/swdb_2017_tools',
     packages=find_packages(include=['swdb17']),
