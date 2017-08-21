@@ -1,6 +1,5 @@
-# here is the code we'd like to include in the module:
-
 import numpy as np
+
 
 def downsample(data, n, axis=0):
     """Reduce the number of samples in an array by averaging together
@@ -15,6 +14,13 @@ def downsample(data, n, axis=0):
         together for each new sample.
     axis : int
         The array axis that should be downsampled (default=0).
+        
+        
+    Returns
+    -------
+    array
+        An array in which each item is the average of *n* items
+        from the input *data* array.
     """
     if n <= 1:
         return data
