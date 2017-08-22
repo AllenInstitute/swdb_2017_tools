@@ -1,10 +1,9 @@
 import numpy as np
 
-
 def downsample(data, n, axis=0):
     """Reduce the number of samples in an array by averaging together
     n samples at a time.
-    
+
     Parameters
     ----------
     data : array
@@ -14,8 +13,8 @@ def downsample(data, n, axis=0):
         together for each new sample.
     axis : int
         The array axis that should be downsampled (default=0).
-        
-        
+
+
     Returns
     -------
     array
