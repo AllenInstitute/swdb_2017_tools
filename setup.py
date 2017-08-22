@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+import swdb2017
 
 # Add setuptools boilerplate
 setup(
@@ -7,7 +8,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='0.0.1',
+    version=swdb2017.__version__,
 
     description='student contributed tools from swdb2017',
     long_description='Student tools from Summer Workshop on the Dynamic Brain 2017',
