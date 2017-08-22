@@ -1,4 +1,6 @@
-import modeling
-import cell_types
-import brain_observatory
-import mouse_connectivity
+from __future__ import absolute_import
+
+from . import modeling
+from . import cell_types
+from . import brain_observatory
+from . import mouse_connectivity
