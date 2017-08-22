@@ -1,3 +1,5 @@
+import numpy as np
+
 def get_roi_centroids(dataset):
     """Extract Cell coords from roi masks
 
