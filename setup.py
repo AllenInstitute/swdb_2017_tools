@@ -1,4 +1,4 @@
-from setuptools import find_packages
+from setuptools import setup, find_packages
 
 # Add setuptools boilerplate
 setup(
@@ -9,7 +9,7 @@ setup(
     # https://packaging.python.org/en/latest/single_source_version.html
     version='0.0.1',
 
-    description='student contributed tools from swdb2017'
+    description='student contributed tools from swdb2017',
     long_description='Student tools from Summer Workshop on the Dynamic Brain 2017',
 
     # The project's main homepage.
