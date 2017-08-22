@@ -8,12 +8,12 @@ def get_roi_centroids(dataset):
 
     Returns
     -------
-    array
-      An array of tuples denoting x,y coordinates of the cell.
+    out : numpy.ndarray
+      An Nx2 array of tuples denoting x,y coordinates of the cells.
     """
     out = []
     for mask in dataset.get_roi_mask_array():
         y,x = mask.nonzero()
-        out.append((y.mean(),x.mean()))
+        out.append([y.mean(),x.mean()])
 
-    return out
+    return np.array(out)
