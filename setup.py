@@ -17,10 +17,10 @@ setup(
     url='https://github.com/AllenInstitute/swdb_2017_tools',
 
     # Author details
-    author='Allen Institute',
+    author='Allen Institute and students from the Summer Workshop on the Dynamic Brain 2017',
     author_email='',
 
     # Choose your license
-    license='MIT',
+    license='Allen Institute Sofware License',
     packages=find_packages()
 )
