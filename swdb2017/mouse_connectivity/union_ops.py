@@ -1,6 +1,6 @@
 import numpy as np
 
-def get_summary_structure_unionizes(mcc,injection_structure_ids,target_structure_ids):
+def get_structure_unionizes(mcc,injection_structure_ids,target_structure_ids):
     '''Get connectivity unionize records for injections in certain structures for a subset of summary structures
 
     Parameters
@@ -27,3 +27,7 @@ def get_summary_structure_unionizes(mcc,injection_structure_ids,target_structure
 
     return unions
 
+def get_summary_structure_unionizes(mcc,injection_structure_ids):
+    summary_structures = structure_tree.get_structures_by_set_id([167587189])
+    summary_stucture_ids = [s['id'] for s in summary_structures]
+    return get_structure_unionizes(mcc,injection_structure_ids,summary_structure_ids)
