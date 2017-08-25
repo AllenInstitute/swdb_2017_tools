@@ -33,7 +33,7 @@ def get_ns_specific_fluorescence_traces(exp, raw):
     # Arguments:
     # exp: Individual experiment object loaded from the brain observatory
     # raw: Boolean. False for df/f calcium signal. True for raw fluroescence trace
-    
+
     # Returns
     # A data frame object containing the trial sorted responses for all natural scenes presented in the given experiment
     #   session. Each element in the data frame is an array with dims cells X time
