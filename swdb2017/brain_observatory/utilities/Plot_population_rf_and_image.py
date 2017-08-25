@@ -56,7 +56,7 @@ population receptive field subunit(unaligned)
     return (nm_template, pop_rf)
     
 def get_natural_scene_template_expt(boc, experiment_id):
-    ns_session_id = boc.get_ophys_experiments(experiment_container_ids=[expt_id], 
+    ns_session_id = boc.get_ophys_experiments(experiment_container_ids=[experiment_id], 
                                               stimuli=['natural_scenes'])[0]['id']
     data_set_ns = boc.get_ophys_experiment_data(ophys_experiment_id=ns_session_id)
     ns_template = data_set_ns.get_stimulus_template('natural_scenes')
@@ -64,16 +64,16 @@ def get_natural_scene_template_expt(boc, experiment_id):
 
 def get_natural_movie_template_expt(boc, experiment_id, natural_movie_id):
     natural_movie_name = 'natural_movie_'+natural_movie_id
-    nm_session_id = boc.get_ophys_experiments(experiment_container_ids=[expt_id], 
+    nm_session_id = boc.get_ophys_experiments(experiment_container_ids=[experiment_id], 
                                               stimuli=[natural_movie_name])[0]['id']
     data_set_nm = boc.get_ophys_experiment_data(ophys_experiment_id=nm_session_id)
     nm_template = data_set_nm.get_stimulus_template(natural_movie_name)
     return nm_template
 
-def get_population_rf(boc, expt_id):
+def get_population_rf(boc, experiment_id):
     c_flag = 'C'
     lsn_name = 'locally_sparse_noise'
-    for a in boc.get_ophys_experiments(experiment_container_ids=[expt_id]):
+    for a in boc.get_ophys_experiments(experiment_container_ids=[experiment_id]):
         if a['session_type'].endswith('2'):
             c_flag = 'C2'
             if a['targeted_structure'] != 'VISp':
@@ -82,10 +82,10 @@ def get_population_rf(boc, expt_id):
                 lsn_name = 'locally_sparse_noise_4deg'
         
     if c_flag=='C':
-        session_id = boc.get_ophys_experiments(experiment_container_ids=[expt_id], stimuli=[lsn_name])[0]['id']
+        session_id = boc.get_ophys_experiments(experiment_container_ids=[experiment_id], stimuli=[lsn_name])[0]['id']
         analysis_file = os.path.join(drive_path, 'ophys_experiment_analysis', str(session_id)+'_three_session_C_analysis.h5')
     elif c_flag=='C2':    
-        session_id = boc.get_ophys_experiments(experiment_container_ids=[expt_id], stimuli=[lsn_name])[0]['id']
+        session_id = boc.get_ophys_experiments(experiment_container_ids=[experiment_id], stimuli=[lsn_name])[0]['id']
         analysis_file = os.path.join(drive_path, 'ophys_experiment_analysis', str(session_id)+'_three_session_C2_analysis.h5')
 
     f = h5py.File(analysis_file, 'r')
