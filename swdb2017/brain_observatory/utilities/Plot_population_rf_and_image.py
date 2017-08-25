@@ -28,8 +28,8 @@ natural scene template (unaligned)
 population receptive field subunit(unaligned)
 
     '''
-    ns_template = get_natural_scene_template_expt(experiment_id)
-    pop_rf = get_population_rf(experiment_id)
+    ns_template = get_natural_scene_template_expt(boc,experiment_id)
+    pop_rf = get_population_rf(boc, experiment_id)
     plot_scene_with_pop_rf(pop_rf, ns_template, natural_scene_id)
     return (ns_template, pop_rf)
 
@@ -50,8 +50,8 @@ natural movie template (unaligned)
 population receptive field subunit(unaligned)
 
     '''
-    nm_template = get_natural_movie_template_expt(experiment_id, natural_movie_id)
-    pop_rf = get_population_rf(experiment_id)
+    nm_template = get_natural_movie_template_expt(boc, experiment_id, natural_movie_id)
+    pop_rf = get_population_rf(boc, experiment_id)
     plot_movie_with_pop_rf(pop_rf, nm_template, frame_number)
     return (nm_template, pop_rf)
     
