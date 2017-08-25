@@ -7,13 +7,13 @@ def get_run_mod_cells(boc,stimuli='natural_scenes',p_max=1):
         ----------
         boc : BrainObservatoryCache
         stimuli : str
-            Currently limited to 'static_gratings','drifting_gratings', and 'natural_scenes'
+            Currently limited to static_gratings,drifting_gratings, and natural_scenes
         p_max : int
             Max p-value; only return records with p-value<p_max
         Returns
         -------
         out : pandas.DataFrame
-        """
+    """
 
     cell_df = pd.DataFrame(boc.get_cell_specimens())
     run_mod_cols = dict(
