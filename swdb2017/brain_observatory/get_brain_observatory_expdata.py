@@ -45,15 +45,20 @@ def get_all_representational_similarity_matrices(BrainObservatoryCache, session_
 
         Returns
         -------
-        rs : a 3-d array of representational similarity matrices from your drive_path for the specified
-        session and stimulus type. The 3-d array is a concatenation of all 2-d representational
-        similarity matrices for the desired experiments (experiment is the 3rd dimension.  
-
+        Dictionary containing : 
+            representational_similarity : numpy array 
+                a 3-d array of representational similarity matrices from your drive_path for the specified
+                session and stimulus type. The 3-d array is a concatenation of all 2-d representational
+                similarity matrices for the desired experiments (experiment is the 3rd dimension).
+            experiment_ids : list
+            session_ids : list
         
         Notes
         -----
         stimulus_type must be found within the given session_type. See the white paper documentation
         on the Allen Brain Institute website to determine what session_type contains each stimulus_type
+        
+        Written by Colleen Schneider 8/24/17
     '''
     
     print('Loading representational similarity matrices')
@@ -76,24 +81,26 @@ def get_all_representational_similarity_matrices(BrainObservatoryCache, session_
     
     #Loop through the experiments and add the representational similarity matrix to rs
     rs = np.zeros([n_stim,n_stim,len(exps)])
+    exp_ids = []
+    session_ids = []
     for exp in range(len(exps)):
         
         if exp%20 == 0:
             print('working on '+ str(exp) + ' of ' + str(len(exps)))
         
+        exp_ids.append(exps[exp]['id'])
         session_id = BrainObservatoryCache.get_ophys_experiments(
-                experiment_container_ids=[exps[exp]['id']], 
+                experiment_container_ids=exp_ids, 
                 session_types = [session_type])[0]['id']
-        data_set = BrainObservatoryCache.get_ophys_experiment_data(ophys_experiment_id=session_id) 
+        session_ids.append(session_id)
         
         # This is where we access the representational similarity matrix
-        from allensdk.brain_observatory.natural_scenes import NaturalScenes
-        ns = NaturalScenes(data_set)
         analysis_path = os.path.join(drive_path,'ophys_experiment_analysis')
         analysis_file = os.path.join(analysis_path, str(session_id)+ '_' + str(session_type) + '_analysis.h5')
         f = h5py.File(analysis_file, 'r')
         rs[:,:,exp] = f['analysis']['rep_similarity_ns'].value
         f.close()
         
-    return rs
+    return {'representational_similarity': rs, 'experiment_ids': exp_ids, 'session_ids': session_ids}
+
 
