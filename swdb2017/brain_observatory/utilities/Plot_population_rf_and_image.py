@@ -78,9 +78,12 @@ def get_population_rf(boc, experiment_id):
             c_flag = 'C2'
             if a['targeted_structure'] != 'VISp':
                 lsn_name = 'locally_sparse_noise_8deg'
+                rf_name = 'receptive_field_lsn8'
             else:
                 lsn_name = 'locally_sparse_noise_4deg'
-        
+                rf_name = 'receptive_field_lsn4'
+
+    drive_path = boc.manifest.get_path('BASEDIR')
     if c_flag=='C':
         session_id = boc.get_ophys_experiments(experiment_container_ids=[experiment_id], stimuli=[lsn_name])[0]['id']
         analysis_file = os.path.join(drive_path, 'ophys_experiment_analysis', str(session_id)+'_three_session_C_analysis.h5')
@@ -88,8 +91,9 @@ def get_population_rf(boc, experiment_id):
         session_id = boc.get_ophys_experiments(experiment_container_ids=[experiment_id], stimuli=[lsn_name])[0]['id']
         analysis_file = os.path.join(drive_path, 'ophys_experiment_analysis', str(session_id)+'_three_session_C2_analysis.h5')
 
+    
     f = h5py.File(analysis_file, 'r')
-    receptive_field = f['analysis'][lsn_name].value
+    receptive_field = f['analysis'][rf_name].value
     f.close()
     pop_rf = np.nansum(receptive_field, axis=(2,3))
     return pop_rf

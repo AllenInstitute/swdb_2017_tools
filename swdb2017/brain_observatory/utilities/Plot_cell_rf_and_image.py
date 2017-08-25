@@ -75,14 +75,17 @@ def get_natural_movie_template(boc, cell_specimen_id, natural_movie_id):
 def get_rf_mask(boc, cell_specimen_id):
     c_flag = 'C'
     lsn_name = 'locally_sparse_noise'
-    for a in boc.get_ophys_experiments(cell_specimen_ids=[cell_specimen_id]):
+    for a in boc.get_ophys_experiments(cell_specimen_ids=[cell_specimen_id],
+                                       stimuli=['three_session_C', 'three_session_C2']):
         if a['session_type'].endswith('2'):
             c_flag = 'C2'
             if a['targeted_structure'] != 'VISp':
                 lsn_name = 'locally_sparse_noise_8deg'
             else:
                 lsn_name = 'locally_sparse_noise_4deg'
-        
+
+    drive_path = boc.manifest.get_path('BASEDIR')
+    
     if c_flag=='C':
         session_id = boc.get_ophys_experiments(cell_specimen_ids=[cell_specimen_id], stimuli=[lsn_name])[0]['id']
         analysis_file = os.path.join(drive_path, 'ophys_experiment_analysis', str(session_id)+'_three_session_C_analysis.h5')
@@ -91,6 +94,8 @@ def get_rf_mask(boc, cell_specimen_id):
         analysis_file = os.path.join(drive_path, 'ophys_experiment_analysis', str(session_id)+'_three_session_C2_analysis.h5')
     
     data_set = boc.get_ophys_experiment_data(session_id)
+    if cell_specimen_id not in data_set.get_cell_specimen_ids():
+        raise Exception("cell %d not in experiment session %d" % (cell_specimen_id, session_id))
     cell_index = data_set.get_cell_specimen_indices(cell_specimen_ids=[cell_specimen_id])[0]
     f = h5py.File(analysis_file, 'r')
     rf_on = f['analysis'][lsn_name][str(cell_index)]['on']['fdr_mask']['data'].value
