@@ -44,7 +44,7 @@ def get_ns_specific_fluorescence_traces(exp, raw):
         t, dff = exp.get_dff_traces()        # Read in calcium signal
     stim = 'natural_scenes'
     stim_table = exp.get_stimulus_table(stim)
-    unique_stim = np.sort(data_set.get_stimulus_table('natural_scenes')['frame'].unique(), axis=None)
+    unique_stim = np.sort(exp.get_stimulus_table('natural_scenes')['frame'].unique(), axis=None)
     dff_temp = dict()
     for i, u_s in enumerate(unique_stim):
         start = stim_table['start'][stim_table['frame']==u_s].values
