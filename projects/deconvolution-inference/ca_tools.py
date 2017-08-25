@@ -1,5 +1,6 @@
 from functions import deconvolve # OASIS import 
 import numpy as np
+import event_detection as ed
 
 def ca_deconvolution(ddf_trace): 
 	""" perform calcium image deconvolution 
@@ -36,6 +37,14 @@ def ca_deconvolution(ddf_trace):
 	# Method 1 OASIS (https://github.com/j-friedrich/OASIS)
 	c, s, b, g, lam = deconvolve(np.double(ddf_trace), penalty=1)
 	out['OASIS'] = s
+	
+	# Method 2 event detection 
+	yes_array, size_array = ed.get_events_derivative(ddf_trace)
+	times_new, heights_new = ed.concatenate_adjacent_events(yes_array, size_array, delta=3)
+	tmp = np.zeros_like(ddf_trace)
+	tmp[times_new] = heights_new
+	out['event_detection'] = tmp
+
 	
 	return out
 
