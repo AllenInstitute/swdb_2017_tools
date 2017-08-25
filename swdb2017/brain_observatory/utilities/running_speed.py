@@ -57,7 +57,7 @@ def plot_running_speed(boc, expt_session_id, ax=None):
     running_speed, timestamps = get_running_speed_from_expt_session_id(boc, expt_session_id)
     if ax is None:
         fig, ax = plt.subplots(figsize=(15, 3))
-    ax.plot(running_speed, timestamps)
+    ax.plot(timestamps, running_speed)
     ax.set_title('expt_session_id: '+str(expt_session_id))
     ax.set_ylabel('run_speed (cm/s)')
     ax.set_xlabel('time (s)')
