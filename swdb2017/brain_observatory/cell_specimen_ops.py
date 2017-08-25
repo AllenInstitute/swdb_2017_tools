@@ -1,3 +1,5 @@
+import pandas as pd
+import numpy as np
 def get_run_mod_cells(boc,stimuli='natural_scenes',p_max=1):
     """Get all run modulated cells and optionally set a max p-value to filter by.
 
