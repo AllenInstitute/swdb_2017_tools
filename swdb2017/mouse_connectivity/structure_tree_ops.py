@@ -1,3 +1,5 @@
+import numpy as np
+
 def get_acronym_name_map(structure_tree):
     '''Builds a dictionary mapping structure acronyms to names.
 
@@ -17,3 +19,4 @@ def get_acronym_name_map(structure_tree):
     name_map = structure_tree.get_name_map()
 
     return {k:name_map[v] for k,v in acronym_map.iteritems()}
+
