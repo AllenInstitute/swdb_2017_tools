@@ -18,10 +18,6 @@ def vectorize(mat):
     return vec
 
 
-def get_rsm_corr():
-    ''' Function that gets Kendall-tau-a measurements between all RSM matrices '''
-
-
 def get_kt(rsm1,rsm2):
     '''Gets Kendall tau-a measurements between two RDM matrices, first vectorizes matrices
     and then computes kt using scipy kendall-tau function'''
