@@ -15,7 +15,7 @@ def get_natural_image_psychophysics_df():
     
 
   
-    file_path = pkg_resources.resource_filename('response_prob.csv', 'swdb2017.brain_observatory.resources')
+    file_path = pkg_resources.resource_filename('swdb2017.brain_observatory','resources/response_prob.csv')
     beh_df = pd.read_csv(file_path)
     
     return beh_df
