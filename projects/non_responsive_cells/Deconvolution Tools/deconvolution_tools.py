@@ -3,11 +3,10 @@ import pandas as pd
 import os
 import sys
 import h5py
-import matplotlib.pyplot as plt
-from allensdk.core.brain_observatory_cache import BrainObservatoryCache
 
 
-def get_spiking_data(dff_traces, timestamps, sig=3)
+def get_spiking_data(dff_traces, timestamps, sig=3):
+    from OASIS.functions import deconvolve
 
     spike_times = []
     isis = []
@@ -20,15 +19,15 @@ def get_spiking_data(dff_traces, timestamps, sig=3)
         spike_times.append(timestamps[s_sig])
         isis.append(np.diff(spike_times[-1]))
 
-    data['isis'] = isis
-    data['spikes'] = spikes
-    data['spike_times'] = spike_times
+    spike_data = {}
+    spike_data['isis'] = isis
+    spike_data['spikes'] = spikes
+    spike_data['spike_times'] = spike_times
 
-    return data
+    return spike_data
 
 
-def get_allen_data(boc, expt_container_id, ophys_experiment_id):
-
+def get_dff(boc, expt_container_id, ophys_experiment_id):
     expt_session_info = boc.get_ophys_experiments(experiment_container_ids=[expt_container_id])
     dataset = boc.get_ophys_experiment_data(ophys_experiment_id=ophys_experiment_id)
     dff_traces = dataset.get_dff_traces()[1]
@@ -37,4 +36,12 @@ def get_allen_data(boc, expt_container_id, ophys_experiment_id):
     return dff_traces, timestamps
 
 
-def plot_raster(spike_times)
+def plot_raster(spike_times):
+    import matplotlib.pyplot as plt
+
+    plt.figure(num=None, figsize=(16, 6), dpi=80, facecolor='w', edgecolor='k')
+    for i, spike_time in enumerate(spike_times):
+        plt.scatter(spike_time, np.ones(len(spike_time)) + i, s=0.2, c='k', marker='o')
+    plt.xlabel('Time(s)')
+    plt.ylabel('Cell Number')
+    plt.show()
