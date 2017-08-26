@@ -25,5 +25,6 @@ def get_run_mod_cells(boc,stimuli='natural_scenes',p_max=1):
         (cell_df[run_mod_cols[stimuli][1]].notnull())
         & (cell_df[run_mod_cols[stimuli][0]]<p_max)
     ]
+    run_cells['run_mod_valence'] = ['amplified' if mod>0 else 'suppressed' for mod in run_cells[run_mod_cols[stimuli]]]
 
     return run_cells
