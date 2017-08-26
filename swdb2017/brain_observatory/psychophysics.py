@@ -1,4 +1,6 @@
 import pandas as pd
+import pkg_resources
+
 
 
 def get_natural_image_psychophysics_df():
@@ -12,7 +14,8 @@ def get_natural_image_psychophysics_df():
             beh_df : dataframe of behavioral response probabilities 8 natural images'''
     
 
-    file_path = 'swdb_2017_tools/swdb2017/brain_observatory/resources/response_prob.csv'
+  
+    file_path = pkg_resources.resource_filename('response_prob.csv', 'swdb2017.brain_observatory.resources')
     beh_df = pd.read_csv(file_path)
     
     return beh_df
