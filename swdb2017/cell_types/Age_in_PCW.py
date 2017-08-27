@@ -1,17 +1,25 @@
-# Function to convert an age expressed in pcw, months, or years into post-conception weeks
+# Function to convert an age expressed in post conception weeks (pcw), months, or years into post-conception weeks
 # Potentially useful if your data is not all in the same units
 # The function assumes that the units on the original data are either 'pcw', 'mos', or 'yrs'
 
 def age_in_pcw(age):
-    num, unit = age.split(' ')
-    if unit == 'pcw':
-        return int(num)
-    elif unit == 'mos':
-        return int(4.34524 * float(num)) + 40
-    elif unit == 'yrs':
-        return int(52.1429 * float(num)) + 40
-    else:
-        return 'What are these units???'
+	"""Function to convert an age expressed in post conception weeks (pcw), months, or years into post-conception week
+	Parameters
+	__________
+	input age in weeks
+	Returns
+	_________
+	string with age in pcw """
+
+	num, unit = age.split(' ')
+    	if unit == 'pcw':
+		return int(num)
+	elif unit == 'mos':
+        	return int(4.34524 * float(num)) + 40
+    	elif unit == 'yrs':
+        	return int(52.1429 * float(num)) + 40
+    	else:
+        	return 'What are these units???'
 
 # Example
 

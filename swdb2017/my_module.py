@@ -33,3 +33,4 @@ def downsample(data, n, axis=0):
     d1.shape = tuple(s)
     d2 = d1.mean(axis+1)
     return d2
+ 
