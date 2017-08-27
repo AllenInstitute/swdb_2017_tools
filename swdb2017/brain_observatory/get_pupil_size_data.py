@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy.ndimage.filters import gaussian_filter
 
 def has_pupil_data_df(boc,targeted_structures = None,stimuli = None,cre_lines = None):
     '''Returns full dataframe with only experiments that have pupil data for desired targeted structures, stimuli classes, 
@@ -106,4 +107,62 @@ def get_pupil_df(boc, eye_df):
     pupil_df = pd.DataFrame(pupil_size_list, columns=['id', 'pupil_size_pixels2','pupil_diameter_pixels', 'time_stamps'])
     
     return pupil_df
+
+def remove_nans(pupil_df,keys):
+    '''Remove NaN values from specified key columns and also same indices from time_stamps. Will remove the same set of 
+    indices for all columns based on first key in keys list.
+    
+    Parameters
+    ----------
+    pupil_df : dataframe containing data and time_stamps column
+    keys : list of keys from which you want NaNs removed (NOT including time_stamps, this is automatic)
+    
+    Returns
+    -------
+    pupil_df_nonans : dataframe same as pupil_df with NaNs removed and corresponding time_stamp indices removed'''
+    
+    pupil_df_nonans = pupil_df.copy()
+    keys.append('time_stamps')
+    
+    #Keep only indices with non-nan data points
+    for j in range(len(pupil_df_nonans[keys[0]])):
+        idx_nonans = ~np.isnan(pupil_df_nonans[keys[0]][j])
+        for key in keys:            
+            pupil_df_nonans[key][j] = pupil_df_nonans[key][j][idx_nonans]
+
+    return pupil_df_nonans     
+
+def smooth_data(pupil_df_nonans,keys,sigma):
+    '''Gaussian smooth data in desired columns specified by keys
+    
+    Parameters
+    ----------
+    pupil_df : dataframe containing data
+    keys : list of strings of columns containing data to be smoothed
+    sigma : int, sigma value to input to gaussian filter
+    
+    Returns
+    -------
+    pupil_df_smooth : dataframe with original data plus additional columns containing smoothed data
+    '''
+    
+    new_keys = []
+    for i,key in enumerate(keys):
+        new_keys.append(key + '_smooth')
+        
+    pupil_df_smooth = pupil_df_nonans.copy()
+    
+    #Insert empty columns for smooth data
+    for i,key in enumerate(new_keys):
+        df_keys = list(pupil_df_smooth.keys())
+        idx = df_keys.index(keys[i])
+        pupil_df_smooth.insert(idx+1,column = key,value = "")
+   
+    #Smooth data and add to dataframe
+    for j in range(len(pupil_df_nonans[keys[0]])):
+        for i,key in enumerate(new_keys):
+            y = gaussian_filter(pupil_df_nonans[keys[i]][j],sigma)
+            pupil_df_smooth[key][j] = y
+            
+    return pupil_df_smooth
 
