@@ -37,7 +37,7 @@ def colorline(
 
     segments = make_segments(x, y)
     lc = mcoll.LineCollection(segments, array=z, cmap=cmap,
-                              linewidth=linewidth)
+                              linewidth=linewidth, alpha = alpha)
 
     #ax = plt.gca()
     #ax.add_collection(lc)

@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def has_pupil_data_df(boc,targeted_structures = None,stimuli = None,cre_lines = None):
     '''Returns full dataframe with only experiments that have pupil data for desired targeted structures, stimuli classes, 
@@ -6,20 +7,20 @@ def has_pupil_data_df(boc,targeted_structures = None,stimuli = None,cre_lines = 
     
     Parameters
     ----------
-            boc : BrainObservatory Cache from allensdk
-            //from allensdk.core.brain_observatory_cache import BrainObservatoryCache
-            //manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
-            //boc = BrainObservatoryCache(manifest_file=manifest_file)
-            
-            targeted_structures : list of brain region acronyms 
-            
-            stimuli : list of stimulus class names
-            
-            cre_lines : list of cre-line names
+    boc : BrainObservatory Cache from allensdk
+    //from allensdk.core.brain_observatory_cache import BrainObservatoryCache
+    //manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
+    //boc = BrainObservatoryCache(manifest_file=manifest_file)
+    
+    targeted_structures : list of brain region acronyms 
+    
+    stimuli : list of stimulus class names
+    
+    cre_lines : list of cre-line names
         
     Returns
     -------
-            eye_df : dataframe of experiments with eye-tracking data'''
+    eye_df : dataframe of experiments with eye-tracking data'''
     
        
     if targeted_structures is None:
@@ -52,7 +53,7 @@ def get_pupil_size_from_expt_session_id(boc, expt_session_id, remove_outliers=Tr
 
     Returns
     -------
-    pupil_size : values of mouse pupil size. Can include NaNs
+    pupil_size : values of mouse pupil size (area, pixels^2). Can include NaNs
     timestamps : timestamps corresponding to pupil size values
     """
     dataset = boc.get_ophys_experiment_data(ophys_experiment_id=expt_session_id)
@@ -60,32 +61,49 @@ def get_pupil_size_from_expt_session_id(boc, expt_session_id, remove_outliers=Tr
     
     return pupil_size, timestamps
 
+def convert_pupil_area_to_diameter(data):
+    '''Convert pupil size data (which is area of the pupil in pixels squared) to diameter (in pixels)
+    Parameters
+    ----------
+    data : array containing pupil area trace (pixels^2)
+    
+    Returns
+    -------
+    pupil_diameter : array containing pupil diameter trace (pixels) '''
+    
+    pupil_diameter = np.sqrt(data/np.pi)
+    return pupil_diameter
+
 def get_pupil_df(boc, eye_df):
     """Returns dataframe containing behavior data from Allen Brain Observatory.
     Parameters
     ----------
-            boc : BrainObservatory Cache from allensdk
-            //from allensdk.core.brain_observatory_cache import BrainObservatoryCache
-            //manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
-            //boc = BrainObservatoryCache(manifest_file=manifest_file)
-            
-            targeted_structures : list of brain region acronyms 
-            
-            stimuli : list of stimulus class names
-            
-            cre_lines : list of cre-line names
+    boc : BrainObservatory Cache from allensdk
+    //from allensdk.core.brain_observatory_cache import BrainObservatoryCache
+    //manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
+    //boc = BrainObservatoryCache(manifest_file=manifest_file)
+    
+    targeted_structures : list of brain region acronyms 
+    
+    stimuli : list of stimulus class names
+    
+    cre_lines : list of cre-line names
+    
     Returns
     -------
-            pupil_df : dataframe containing:
-                id: unique experiment id (int)
-                pupil_size: pupil size values (list)
-                time_stamps: time stamps corresponding to running speed values (list)"""
+    pupil_df : dataframe containing:
+        id: unique experiment id (int)
+        pupil_area_pixels2: pupil size values (area, pixels^2) (array)
+        pupil_diameter_pixels: pupil diameter values (pixels) (array)
+        time_stamps: time stamps corresponding to running speed values (array)"""
                     
     expt_session_ids = eye_df.id.values
     pupil_size_list = []
     for expt_id in expt_session_ids[:5]:
         timestamps, pupil_size = get_pupil_size_from_expt_session_id(boc, expt_id)
-        pupil_size_list.append([expt_id, pupil_size, timestamps])
-    pupil_df = pd.DataFrame(pupil_size_list, columns=['id', 'pupil_size', 'time_stamps'])
+        pupil_diameter = convert_pupil_area_to_diameter(pupil_size)
+        pupil_size_list.append([expt_id, pupil_size, pupil_diameter, timestamps])
+    pupil_df = pd.DataFrame(pupil_size_list, columns=['id', 'pupil_size_pixels2','pupil_diameter_pixels', 'time_stamps'])
     
     return pupil_df
+
