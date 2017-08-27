@@ -27,5 +27,5 @@ def get_run_mod_cells(boc,stimuli='natural_scenes',p_max=1):
     ]
     valence = pd.Series(['amplified' if mod>0 else 'suppressed' for mod in run_cells[run_mod_cols[stimuli][1]]])
 
-    run_cells['run_mod_valence'] = valence
+    run_cells.loc([:,u'run_mod_valence'] = valence
     return run_cells
