@@ -38,7 +38,61 @@ def spike_times_dict_to_array(spike_times_per_neuron):
         
     return neuron_ids, spike_times
 
-### functions below are applicable to layer4 simulation data
+def binarize_spike_times(spike_times, t_start, t_finish, bin_size):
+    '''Binarizes an array of spike times.
+    
+    Parameters
+    ----------
+        spike_times : numpy array
+            contains the times, in seconds, of the spikes for a given neuron
+        
+        t_start: float
+            the starting time to bin over, in seconds
+        
+        t_finish: float
+            the ending time to bin over, in seconds
+        
+        bin_size : float
+            the length, in seconds, of each bin
+            
+    Returns
+    -------
+        spike_train : numpy array
+            binary array indicating which bins contain spikes
+    '''
+    num_bins = int((t_finish - t_start)/bin_size)
+    bins = np.linspace(t_start, t_finish, num_bins)
+    spike_train = np.histogram(spike_times, bins)[0]
+    return spike_train
+
+def binarize_spike_times_population(spike_times_per_neuron, t_start, t_finish, bin_size):
+    '''Binarizes a dict containing the spike times for a variety of neurons.
+    
+    Parameters
+    ----------
+        spike_times_per_neuron : dict
+            key values are neuron ids (ints) and values are numpy arrays containing spike times.
+        
+        t_start: float
+            the starting time to bin over, in seconds
+        
+        t_finish: float
+            the ending time to bin over, in seconds
+        
+        bin_size : float
+            the length, in seconds, of each bin
+            
+    Returns
+    -------
+        spike_train : dict
+            dict containing neuron ids as keys and binary arrays indicating which bins contain spikes
+    '''
+    num_bins = int((t_finish - t_start)/bin_size)
+    bins = np.linspace(t_start, t_finish, num_bins)
+    spike_train = {neuron_id : np.histogram(spike_times_per_neuron[neuron_id], bins)[0] for neuron_id in spike_times_per_neuron}
+    return spike_train
+
+### functions below are specific to layer4 simulation data
 
 def get_spike_filepath(layer4_spikes, model, stimulus, stimulus_id, trial):
     '''Returns the filepath to the dat file containing the spike times from a given Layer 4 simulation.
