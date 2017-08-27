@@ -1,6 +1,38 @@
 import numpy as np
 import pandas as pd
 
+def get_grating_specific_traces(exp, raw):
+
+    cell_ids = exp.get_cell_specimen_ids()
+    if raw:
+        t, dff = exp.get_fluorescence_traces()  # Read in calcium signal
+    else:
+        t, dff = exp.get_dff_traces()        # Read in calcium signal
+
+    pr = exp.get_pupil_size()
+    pr = pr[1]
+    stim_table = exp.get_stimulus_table('static_gratings')
+
+    stim_id = []
+    for i, s in enumerate(stim_table['orientation']):
+        stim_id.append(",".join([str(stim_table['orientation'][i]), str(stim_table['spatial_frequency'][i]),
+                                     str(stim_table['phase'][i])]))
+    stim_table['id'] = stim_id # add column with unique id
+
+    stim_ids = list(set(stim_id)) # make list of all possible unique ids
+    dff_temp = dict()
+    columns = stim_ids
+    df = pd.DataFrame([], index = range(0,50), columns = columns)
+    pr_df = pd.DataFrame([], index = range(0,50), columns = columns)
+    for j, us in enumerate(stim_ids):
+        start = stim_table['start'][stim_table['id']==us].values
+        end = stim_table['end'][stim_table['id']==us].values
+
+        for i in range(0, len(start)):
+                df[us][i]=(dff[:,start[i]:end[i]])
+                pr_df[us][i] = pr[start[i]:end[i]]
+
+    return df, pr_df, cell_ids
 
 def get_spont_specific_fluorescence_traces(exp, raw):
     # Arguments:
