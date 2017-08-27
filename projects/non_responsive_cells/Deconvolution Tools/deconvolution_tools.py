@@ -6,6 +6,21 @@ import h5py
 
 
 def get_spiking_data(dff_traces, timestamps, sig=3):
+    '''
+    Deconvolve dff_traces into spikes
+    uses OASIS (https://github.com/j-friedrich/OASIS)
+
+    Inputs:
+        dff_traces: List of dff_traces
+        timestamps: time vector of dff_traces
+        sig: standard deviation required for classifying as a spike
+    Returns:
+        spike_data: Dictionary containing
+            isis: List of interspike intervals for each list in dff_traces
+            spikes: Lists of binary vectors indicating where spikes were detected
+            spike_times: List of spike times for each list in dff_traces
+    '''
+
     from OASIS.functions import deconvolve
 
     spike_times = []
@@ -27,8 +42,17 @@ def get_spiking_data(dff_traces, timestamps, sig=3):
     return spike_data
 
 
-def get_dff(boc, expt_container_id, ophys_experiment_id):
-    expt_session_info = boc.get_ophys_experiments(experiment_container_ids=[expt_container_id])
+def get_dff(boc, ophys_experiment_id):
+    '''
+    Get dff_traces for a given ophys_experiment
+
+    Inputs:
+        boc: BrainObservatoryCache Object
+        ophys_experiment_id
+    Returns:
+        dff_traces: List of dff_traces
+        timestamps: time vector for dff_traces
+    '''
     dataset = boc.get_ophys_experiment_data(ophys_experiment_id=ophys_experiment_id)
     dff_traces = dataset.get_dff_traces()[1]
     timestamps = dataset.get_fluorescence_timestamps()
@@ -37,6 +61,12 @@ def get_dff(boc, expt_container_id, ophys_experiment_id):
 
 
 def plot_raster(spike_times):
+    '''
+    Create a raster plot based on spikes_times
+
+    input:
+        spike_times: A list of lists of spike times
+    '''
     import matplotlib.pyplot as plt
 
     plt.figure(num=None, figsize=(16, 6), dpi=80, facecolor='w', edgecolor='k')
