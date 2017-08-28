@@ -75,3 +75,13 @@ def get_rsms(boc, drive_path, targeted_structures,cre_lines,imaging_depths,stimu
     return exps
 
 
+def get_kt_matrix(exps,targeted_structures,cre_lines,imaging_depths,compare):
+    ''' Gets Kendall tau measurement for all matrices for a certain list of
+    visual areas, cre lines, and imaging depths
+    If multiple RSAs exist for one mouse, average them together
+    If multiple RSAs for one targeted structure, cre line, or imaging depth '''
+    for cre_line in cre_lines:
+        for imaging_depth in imaging_depths:
+            for targeted_structure in targeted_structures:
+                 rsms=exps.groupby(['cre_line','imaging_depth','targeted_structure']).get_group((cre_line,imaging_depth,targeted_structure)).rsm.mean()
+                 exps_grouped=pd.DataFrame(data=[cre_line,imaging_depth,targeted_structure,columns,rsms]='cre_line','imaging_depth','targeted_structure','rsms')
