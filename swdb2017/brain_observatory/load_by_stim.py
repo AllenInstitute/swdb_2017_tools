@@ -32,7 +32,7 @@ def get_grating_specific_traces(exp, raw):
                 df[us][i]=(dff[:,start[i]:end[i]])
                 pr_df[us][i] = pr[start[i]:end[i]]
 
-    return df, pr_df, cell_ids
+    return df, pr_df, cell_ids, t
 
 def get_spont_specific_fluorescence_traces(exp, raw):
     # Arguments:
@@ -73,7 +73,7 @@ def get_spont_specific_fluorescence_traces(exp, raw):
     dff_df = pd.DataFrame(data=dff_temp, columns=columns)
     columns = sorted(pr_temp.keys())
     pr_df = pd.DataFrame(data=pr_temp, columns=columns)
-    return dff_df, pr_df, cell_ids
+    return dff_df, pr_df, cell_ids, t
 
 def get_ns_specific_fluorescence_traces(exp, raw):
 
@@ -118,4 +118,4 @@ def get_ns_specific_fluorescence_traces(exp, raw):
     dff_df = pd.DataFrame(data=dff_temp, columns=columns)
     columns = sorted(pr_temp.keys())
     pr_df = pd.DataFrame(data=pr_temp, columns = columns)
-    return dff_df, pr_df, cell_ids
+    return dff_df, pr_df, cell_ids, t
