@@ -38,8 +38,6 @@ def get_spiking_data(dff_traces, timestamps, cell_specimen_ids, sig=3):
         spike_times[cell_specimen_ids[i]] = timestamps[s_sig]
         isis[cell_specimen_ids[i]] = np.diff(spike_times[cell_specimen_ids[i]])
 
-
-
     spike_data = {}
     spike_data['isis'] = isis
     spike_data['spikes'] = spikes
@@ -64,7 +62,7 @@ def get_dff(boc, ophys_experiment_id):
     dataset = boc.get_ophys_experiment_data(ophys_experiment_id=ophys_experiment_id)
     dff_traces = dataset.get_dff_traces()[1]
     timestamps = dataset.get_fluorescence_timestamps()
-    cell_ids = dataset.get_cell_specimen_ids()
+    cell_specimen_ids = dataset.get_cell_specimen_ids()
 
     return dff_traces, timestamps, cell_specimen_ids
 
