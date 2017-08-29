@@ -11,9 +11,9 @@ def get_natural_image_psychophysics_df():
         
     Returns
     -------
-            beh_df : dataframe of behavioral response probabilities 8 natural images'''
+            beh_df : dataframe of behavioral response probabilities 8 natural images.
+            Natural image index is stored as a column in dataframe.'''
     
-
   
     file_path = pkg_resources.resource_filename('swdb2017.brain_observatory','resources/response_prob.csv')
     beh_df = pd.read_csv(file_path)
