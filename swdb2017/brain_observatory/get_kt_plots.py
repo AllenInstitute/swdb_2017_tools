@@ -11,7 +11,8 @@ from scipy.stats import kendalltau as kt
 
 import scipy.spatial.distance
 
-'''All of these functions take DataFrame exps, which is just like '''
+'''All of these functions take DataFrame exps, which is just like a what you get from a get_ophys_experiments object
+out of the brain observatory cache, except populated with RSMs '''
 def vectorize(mat):
     """Takes a square symmetric matrix mat and returns the vectorized form. Like matlab's squareform.
 
@@ -88,6 +89,12 @@ def get_kt_matrix(exps_grouped, compare):
     np.fill_diagonal(kt_matrix, 0)
     kt_df = pd.DataFrame(data=kt_matrix, columns=to_compare, index=to_compare)
     return kt_df
+
+
+
+###############################
+
+exps=group_imaging_depths(exps)
 
 cre_lines=boc.get_all_cre_lines()
 imaging_depths=boc.get_all_cre_lines()
