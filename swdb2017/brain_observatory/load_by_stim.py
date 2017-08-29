@@ -75,7 +75,7 @@ def get_spont_specific_fluorescence_traces(exp, raw):
     pr_df = pd.DataFrame(data=pr_temp, columns=columns)
     return dff_df, pr_df, cell_ids, t
 
-def get_ns_specific_fluorescence_traces(exp, raw):
+def get_ns_specific_fluorescence_traces(exp, raw=False):
 
     # Arguments:
     # exp: Individual experiment object loaded from the brain observatory
@@ -118,4 +118,26 @@ def get_ns_specific_fluorescence_traces(exp, raw):
     dff_df = pd.DataFrame(data=dff_temp, columns=columns)
     columns = sorted(pr_temp.keys())
     pr_df = pd.DataFrame(data=pr_temp, columns = columns)
-    return dff_df, pr_df, cell_ids, t
+    return dff_df, pr_df, cell_ids
+
+def get_ns_dff_by_trial(data_set, cell_specimen_ids=None):
+    if cell_specimen_ids is None
+        cell_specimen_ids = exp.get_cell_specimen_ids()
+
+    t, dff = exp.get_dff_traces()        # Read in calcium signal
+
+    stim = 'natural_scenes'
+    stim_table = data_set.get_stimulus_table(stim)
+    unique_stim = np.sort(exp.get_stimulus_table('natural_scenes')['frame'].unique(), axis=None)
+    dff_temp = dict()
+    for i, u_s in enumerate(unique_stim):
+        start = stim_table['start'][stim_table['frame']==u_s].values
+        end = start + 7#stim_table['end'][stim_table['frame']==u_s].values
+        dff_temp[u_s] = []
+        for j in range(0, len(start)):
+                dff_temp[u_s].append(dff[:,start[j]:end[j]])
+    columns = sorted(dff_temp.keys())
+    dff_df = pd.DataFrame(data=dff_temp, columns=columns)
+    return dff_df
+
+
