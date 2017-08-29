@@ -100,7 +100,7 @@ def get_pupil_df(boc, eye_df):
                     
     expt_session_ids = eye_df.id.values
     pupil_size_list = []
-    for expt_id in expt_session_ids[:5]:
+    for expt_id in expt_session_ids:
         timestamps, pupil_size = get_pupil_size_from_expt_session_id(boc, expt_id)
         pupil_diameter = convert_pupil_area_to_diameter(pupil_size)
         pupil_size_list.append([expt_id, pupil_size, pupil_diameter, timestamps])
