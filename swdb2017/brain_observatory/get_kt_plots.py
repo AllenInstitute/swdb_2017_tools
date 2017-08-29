@@ -12,7 +12,8 @@ from scipy.stats import kendalltau as kt
 import scipy.spatial.distance
 
 '''All of these functions take DataFrame exps, which is just like a what you get from a get_ophys_experiments object
-out of the brain observatory cache, except populated with RSMs '''
+out of the brain observatory cache, except populated with RSMs. Only designed to work with one type of stimulus (natural scenes) 
+at the moment'''
 def vectorize(mat):
     """Takes a square symmetric matrix mat and returns the vectorized form. Like matlab's squareform.
 
