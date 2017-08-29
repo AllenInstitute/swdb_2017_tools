@@ -1,4 +1,16 @@
-def pearson_corr_coeff(x, y= None):
+def pearson_corr_coeff(x, y):
+
+    '''
+    Arguments:
+    ---------------------------
+    x: 1D or 2D numpy array
+    y: 1D or 2D numpy array (dims must agree with x)
+
+    Returns:
+    ---------------------------
+    c: The pearson correlation coefficient between x and y
+
+    '''
 
     if y != None:
         x_diffs = np.ediff1d(x)
