@@ -40,7 +40,7 @@ def get_kt(rsm1,rsm2):
 
 def group_imaging_depths(exps):
     '''Groups imaging depth by layer, approximately'''
-    exps.loc[(exps.imaging_depth > 100) & (exps.imaging_depth < 200)],'imaging_depth']=175
+    exps.loc[(exps.imaging_depth > 100) & (exps.imaging_depth < 200),'imaging_depth'] = 175
     exps.loc[(exps.imaging_depth > 200) & (exps.imaging_depth <= 300), 'imaging_depth'] = 275
     exps.loc[(exps.imaging_depth > 300) & (exps.imaging_depth < 400), 'imaging_depth'] = 350
     exps.loc[(exps.imaging_depth > 400) & (exps.imaging_depth < 500), 'imaging_depth'] = 435
