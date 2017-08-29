@@ -260,3 +260,57 @@ def get_processed_behavior_data(boc, targeted_structures=None, stims=None, cre_l
     smoothed_traces = plot_smoothed_trace(df_smooth, ['speed_cm_s', 'speed_cm_s_smooth'])
 
     return smoothed_traces
+
+
+def plot_smoothed_running_distributions(df_smooth, key, bins):
+    '''Plot distribution running speed values that are gaussian filtered.
+
+    Parameters
+    ----------
+    df_smooth : dataframe containing data and time_stamps column without any NaN values.
+    key : list of column name (str) to ploy distribution of
+    bins : number of bins to parse the distribution by
+
+    Returns
+    -------
+    ax: axes handle, plot of smoothed trace with original trace'''
+
+    for i, row in df_smooth.iterrows():
+        fig, ax = plt.subplots()
+        ax.hist(row[key[0]], bins=bins)
+
+        plt.xlabel(keys[0])
+        plt.ylabel('count')
+        plt.title('Experiment ID: ' + str(row['id']))
+        sns.despine()
+        sns.set_style('ticks')
+
+
+def get_is_running(df_smooth, threshold):
+    '''Assign a binary value to running (1) or not running (0) based on an input threshold
+
+    Parameters
+    ----------
+    df_smooth : dataframe containing data and time_stamps column without any NaN values.
+    threshold : speed (cm/s) that you will define running state
+
+    Returns
+    -------
+    df_is_running : copy of original dataframe with an addition column (is_running) with binary values
+                    denoting running (1) or not running (0)'''
+
+    df_is_running = df_smooth.copy()
+    is_running = []
+    for i, row in df_is_running.iterrows():
+        is_running.append([1 if s > threshold else 0 for s in row['speed_cm_s_smooth']])
+
+    df_is_running['is_running'] = is_running
+
+    keys = ['is_running', 'time_stamps']
+    for i, row in tqdm_notebook(df_is_running.iterrows()):
+        fig, ax = plt.subplots()
+        ax.plot(row['time_stamps'], row['is_running'])
+
+    return df_is_running
+
+
