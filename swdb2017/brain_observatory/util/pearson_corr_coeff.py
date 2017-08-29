@@ -1,3 +1,5 @@
+import numpy as np
+
 def pearson_corr_coeff(x, y):
 
     '''
