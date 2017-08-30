@@ -137,6 +137,7 @@ ax[1,0].set_ylabel('PC2')
 ax[1,1].plot(pr_ns)
 ax[0,1].plot(corr)
 cm = plt.get_cmap('jet')
+
 '''
 for trial in range(0, V1.shape[1]):
     x = c_plt.colorline(V1[:,trial], V2[:,trial], cmap=plt.get_cmap('copper'), linewidth=1, alpha = 0.2)

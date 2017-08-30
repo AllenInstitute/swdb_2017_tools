@@ -38,7 +38,7 @@ def get_grating_specific_traces(exp, raw, binned=False):
 
     t, pr = exp.get_pupil_size()
     t, pl = exp.get_pupil_location(as_spherical = False)
-    t, rs = exp.get_running_speed()
+    rs, t = exp.get_running_speed()
     p_rate, _ = epf.extract_smooth_pupil_rate(exp)
     pr_smooth, _ = epf.extract_smooth_pupil(exp)         # Sigma is defaulted to 4
     sac_rate = epf.extract_smooth_saccade_rate(exp)
@@ -146,7 +146,7 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
         t, dff = exp.get_dff_traces()        # Read in calcium signal
     t, pr = exp.get_pupil_size()
     t, pl = exp.get_pupil_location(as_spherical = False)
-    t, rs = exp.get_running_speed()
+    rs, t = exp.get_running_speed()
     p_rate, _ = epf.extract_smooth_pupil_rate(exp)
     sac_rate = epf.extract_smooth_saccade_rate(exp)
     pr_smooth, _ = epf.extract_smooth_pupil(exp)         # Sigma is defaulted to 4
@@ -246,17 +246,13 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
         t, dff = exp.get_dff_traces()        # Read in calcium signal
 
     t, pr = exp.get_pupil_size()
-    plt.figure()
-    plt.plot(pr)
-    plt.show()
     t, pl = exp.get_pupil_location(as_spherical = False)
-    t, rs = exp.get_running_speed()
+    rs, t = exp.get_running_speed()
     p_rate, _ = epf.extract_smooth_pupil_rate(exp)
     sac_rate = epf.extract_smooth_saccade_rate(exp)
     pr_smooth, _ = epf.extract_smooth_pupil(exp)         # Sigma is defaulted to 4
     rs_smooth = erf.extract_smooth_running_speed(exp)    # Sigma is deafult = 2
     rr_smooth = erf.extract_smooth_running_rate(exp)     # Sigma is default = 2
-
     stim = 'natural_scenes'
     stim_table = exp.get_stimulus_table(stim)
     unique_stim = np.sort(exp.get_stimulus_table('natural_scenes')['frame'].unique(), axis=None)
@@ -309,6 +305,9 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
             rs_temp[u_s] = []
             p_rate_temp[u_s] = []
             sac_rate_temp[u_s] = []
+            pr_smooth_temp[u_s] = []
+            rs_smooth_temp[u_s] = []
+            rr_smooth_temp[u_s] = []
             for j in range(0, len(start)):
                     dff_temp[u_s].append(dff[:,start[j]:end[j]])
                     pr_temp[u_s].append(pr[start[j]:end[j]])
