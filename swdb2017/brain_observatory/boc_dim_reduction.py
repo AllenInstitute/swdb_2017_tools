@@ -108,6 +108,13 @@ ax[0,1].autoscale(True)
 
 ############ Singular value decomposition of spont acitivity ###################
 U, S, V = np.linalg.svd(dff_spont)
+print(U.shape)
+plt.figure()
+plt.subplot(211)
+plt.plot(V.T[0])
+plt.subplot(212)
+plt.plot(V[0])
+
 pcs = U*S
 var_explained = []
 for i in range(0, len(S)):
