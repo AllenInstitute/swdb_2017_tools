@@ -12,7 +12,7 @@ import load_by_stim as lbs
 import plotting as c_plt
 from matplotlib.collections import LineCollection
 import scipy.ndimage.filters as filt
-
+from utilities.pearson_corr_coeff import pearson_corr_coeff
 from swdb2017.brain_observatory.util.cell_specimen_ops import get_run_mod_cells
 # Import brain observatory cache class. This is responsible for downloading any data
 # or metadata
@@ -37,26 +37,29 @@ for i, exp in enumerate(exps_):
         exps.append(exps_[i])
 
 ## Test PCA with one of the experiments in exps
-exp_id = exps[1]['id']
+exp_id = exps[6]['id']
 data_set = boc.get_ophys_experiment_data(ophys_experiment_id = exp_id)
 meta_data = data_set.get_metadata()
 
 ############ Load and pre-process data for dim-reduction #####################
 
 # get df/f traces for spont activity
-out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False, binned=True)
+out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False, binned=False)
 nTrials = len(out['fluorescence']['spont'])
-dff_spont = np.stack(out['fluorescence']['spont'][0:nTrials],axis=1)
-pr_spont = out['pupil size']['spont'][0:nTrials] #np.concatenate(out['pupil size']['spont'][0:nTrials], axis = 0)
+dff_spont = np.squeeze(np.stack(out['fluorescence']['spont'][0:nTrials],axis=1))
+pr_spont = np.concatenate(out['pupil size']['spont'][0:nTrials], axis = 0)
 
 
 # get df/f traces for natural scences
-out, ns_cell_ids = lbs.get_ns_specific_fluorescence_traces(data_set, False, binned = True)
+image = 5
+binned = True
+out, ns_cell_ids = lbs.get_ns_specific_fluorescence_traces(data_set, False, binned = binned)
 nTrials = len(out['fluorescence'][0])
-dff_ns = np.stack(out['fluorescence'][0][0:nTrials], axis=1)
-plt.imshow(dff_ns)
-plt.show()
-pr_ns = out['pupil size'][0][0:nTrials]  #np.concatenate(out['pupil size'][0][0:nTrials], axis=0)
+dff_ns = np.stack(out['fluorescence'][image][0:nTrials], axis=1)
+if binned:
+    pr_ns = out['pupil size'][image][0:nTrials]
+else:
+    np.concatenate(out['pupil size'][image][0:nTrials], axis=0)
 
 
 # Qualitative look at spont population acitivity
@@ -76,14 +79,19 @@ plt.ylabel('cells')
 
 
 ######## Singular value decomposition of NS responses for given stim ##########
-U, S, V = np.linalg.svd(dff_ns.T)
-pcs = U*S
+U, S, V = np.linalg.svd(dff_ns)
+corr = np.zeros(len(S))
+for i in range(0, len(S)):
+    corr[i] = pearson_corr_coeff(V.T[i], pr_ns)
+
+pcs = U[:,0:len(S)]*S
 plt.figure()
 plt.subplot(211)
 plt.plot(V.T[0])
 plt.subplot(212)
 plt.plot(V[0])
 # Make single trial projections
+'''
 Vt = V.transpose()
 l = Vt.shape[1]
 trialLen = 7
@@ -91,6 +99,7 @@ V1 = filt.gaussian_filter(V[0].reshape(trialLen, l/trialLen),.5)
 V1mean = np.mean(V1,axis=0)
 V2 = filt.gaussian_filter(V[1].reshape(trialLen, l/trialLen),.5)
 V2mean = np.mean(V2,axis=0)
+'''
 var_explained = []
 for i in range(0, len(S)):
     var_explained.append(sum(S[0:i])/sum(S))
@@ -104,16 +113,22 @@ ax[1,0].plot(pcs[0], pcs[1], '.')
 ax[1,0].set_xlabel('PC1')
 ax[1,0].set_ylabel('PC2')
 ax[1,1].plot(pr_ns)
+ax[0,1].plot(corr)
 cm = plt.get_cmap('jet')
+'''
 for trial in range(0, V1.shape[1]):
     x = c_plt.colorline(V1[:,trial], V2[:,trial], cmap=plt.get_cmap('copper'), linewidth=1, alpha = 0.2)
     ax[0,1].add_collection(x)
 x = c_plt.colorline(V1mean, V2mean, cmap=plt.get_cmap('copper'), linewidth=3, alpha = 1)
 ax[0,1].add_collection(x)
 ax[0,1].autoscale(True)
+'''
 
 ############ Singular value decomposition of spont acitivity ###################
 U, S, V = np.linalg.svd(dff_spont)
+corr = np.zeros(len(S))
+for i in range(0, len(S)):
+    corr[i] = pearson_corr_coeff(V.T[i], pr_spont)
 
 pcs = U*S
 var_explained = []
@@ -129,4 +144,5 @@ ax[1,0].plot(pcs[0], pcs[1], '.')
 ax[1,0].set_xlabel('PC1')
 ax[1,0].set_ylabel('PC2')
 ax[1,1].plot(pr_spont)
+ax[0,1].plot(corr)
 plt.show()

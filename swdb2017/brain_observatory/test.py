@@ -1,21 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from util.pearson_corr_coeff import pearson_corr_coeff
-x = np.random.randint(-1,1,(2,100))
-y = np.random.randint(-1,1,(2, 100))
-x = np.sin(np.arange(0,100) - 10)
-y = np.sin(np.arange(0,100))
-
+from utilities.pearson_corr_coeff import pearson_corr_coeff
+x = np.random.randint(-1,1,(1,10)).astype(np.float)
+y = np.random.randint(-1,1,(1, 10))
+x[0,2] = np.nan
 
 #Css = x.T *x
 
-np.delete(x,0,axis=0)
+#np.delete(x,0,axis=0)
 
-print(x.shape)
 
 print(pearson_corr_coeff(x,y))
 
-print(np.nanmean([np.nan,1]))
 
 print(np.corrcoef(x,y))
 plt.figure()

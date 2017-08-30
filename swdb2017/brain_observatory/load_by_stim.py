@@ -132,7 +132,7 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
     rs_temp['spont'] = []
 
     if binned:
-        for i in range(0, len(stim_table['start'].values)):
+        for i in range(0,len(stim_table['start'].values)):
             start = stim_table['start'][i]
             end = stim_table['end'][i]
             dff_temp['spont'].append(np.nanmean(dff[:,start:end],axis=1))
@@ -222,7 +222,7 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
                     pl_temp[u_s].append(np.nanmean(pl[start[j]:end[j], :], axis=0))
                     t_temp[u_s].append(np.nanmean(t[start[j]:end[j]]))
                     rs_temp[u_s].append(np.nanmean(rs[start[j]:end[j]]))
-            
+
     else:
         for i, u_s in enumerate(unique_stim):
             start = stim_table['start'][stim_table['frame']==u_s].values
