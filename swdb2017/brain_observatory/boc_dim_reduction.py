@@ -36,7 +36,6 @@ for i, exp in enumerate(exps_):
     if (exps_[i]['fail_eye_tracking']==False):
         exps.append(exps_[i])
 
-
 ## Test PCA with one of the experiments in exps
 exp_id = exps[1]['id']
 data_set = boc.get_ophys_experiment_data(ophys_experiment_id = exp_id)
