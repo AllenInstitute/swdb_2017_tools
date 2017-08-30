@@ -81,16 +81,16 @@ def get_all_representational_similarity_matrices(BrainObservatoryCache, session_
     
     #Loop through the experiments and add the representational similarity matrix to rs
     rs = np.zeros([len(exps),n_stim,n_stim])
-    exp_ids = []
     session_ids = []
+    exp_ids = []
     for exp in range(len(exps)):
         
         if exp%20 == 0:
             print('working on '+ str(exp) + ' of ' + str(len(exps)))
         
-        exp_ids = exps[exp]['id']
+        exp_ids.append(exps[exp]['id'])
         session_id = BrainObservatoryCache.get_ophys_experiments(
-                experiment_container_ids=[exp_ids], 
+                experiment_container_ids=[exps[exp]['id']], 
                 session_types = [session_type])[0]['id']
         session_ids.append(session_id)
         
