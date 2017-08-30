@@ -60,6 +60,8 @@ def insert_nans(data, idx_nonans):
 
     new_data = np.empty(idx_nonans.shape)
     new_data[:] = np.nan
+    new_data[idx_nonans] = data
+
     return new_data
 
 
