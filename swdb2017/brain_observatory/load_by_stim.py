@@ -3,29 +3,29 @@ import pandas as pd
 
 def get_grating_specific_traces(exp, raw):
 
-        '''
-        Arguments:
-        ---------------------------------------------------------------------------
-        exp: Individual experiment object loaded from the brain observatory
-        raw: Boolean. False for df/f calcium signal. True for raw fluroescence trace
-        Returns:
-        ----------------------------------------------------------------------------
-        output: Dictionary containing the following fields
-            fluorescence: data frame object containing the trial sorted responses for all
-            static grating activity in the given experiment session. Each element in the
-            data frame is an array with dims cells X time
-            pupil size: A data frame object containing the trial sorted pupil size for all
-            different natural scenes presented
-            pupil location: A data frame object containing the trial sorted pupil location for all
-            different natural scenes presented
-            running speed: A data frame object containing the trial sorted running speed for all
-            different natural scenes presented
-            time: A data frame object containing the trial sorted times stamps for all
-            different natural scenes presented. Aligns with the previous dictionary fields
-        cell_ids: numpy array containing unique cell ids. Index of cell id matches
-        with row of cell X time matrix contained inside the fluroescence field of the
-        output dictionary
-        '''
+    '''
+    Arguments:
+    ---------------------------------------------------------------------------
+    exp: Individual experiment object loaded from the brain observatory
+    raw: Boolean. False for df/f calcium signal. True for raw fluroescence trace
+    Returns:
+    ----------------------------------------------------------------------------
+    output: Dictionary containing the following fields
+        fluorescence: data frame object containing the trial sorted responses for all
+        static grating activity in the given experiment session. Each element in the
+        data frame is an array with dims cells X time
+        pupil size: A data frame object containing the trial sorted pupil size for all
+        different natural scenes presented
+        pupil location: A data frame object containing the trial sorted pupil location for all
+        different natural scenes presented
+        running speed: A data frame object containing the trial sorted running speed for all
+        different natural scenes presented
+        time: A data frame object containing the trial sorted times stamps for all
+        different natural scenes presented. Aligns with the previous dictionary fields
+    cell_ids: numpy array containing unique cell ids. Index of cell id matches
+    with row of cell X time matrix contained inside the fluroescence field of the
+    output dictionary
+    '''
 
     cell_ids = exp.get_cell_specimen_ids()
     if raw:
@@ -63,11 +63,11 @@ def get_grating_specific_traces(exp, raw):
                 t_df[us][i] = t[start[i]:end[i]]
                 rs_df[us[i]] = rs[start[i]:end[i]]
     output = dict()
-    output['fluroescence']
-    output['pupil size']
-    output['pupil location']
-    output['time']
-    output['running speed']
+    output['fluorescence'] = df
+    output['pupil size'] = pr_df
+    output['pupil location'] = pl_df
+    output['time'] = t_df
+    output['running speed'] = rs_df
     return output, cell_ids
 
 def get_spont_specific_fluorescence_traces(exp, raw):
@@ -139,29 +139,29 @@ def get_spont_specific_fluorescence_traces(exp, raw):
 
 def get_ns_specific_fluorescence_traces(exp, raw):
 
-        '''
-        Arguments:
-        ---------------------------------------------------------------------------
-        exp: Individual experiment object loaded from the brain observatory
-        raw: Boolean. False for df/f calcium signal. True for raw fluroescence trace
-        Returns:
-        ----------------------------------------------------------------------------
-        output: Dictionary containing the following fields
-            fluorescence: data frame object containing the trial sorted responses for all
-            natural scenes activity in the given experiment session. Each element in the
-            data frame is an array with dims cells X time
-            pupil size: A data frame object containing the trial sorted pupil size for all
-            different natural scenes presented
-            pupil location: A data frame object containing the trial sorted pupil location for all
-            different natural scenes presented
-            running speed: A data frame object containing the trial sorted running speed for all
-            different natural scenes presented
-            time: A data frame object containing the trial sorted times stamps for all
-            different natural scenes presented. Aligns with the previous dictionary fields
-        cell_ids: numpy array containing unique cell ids. Index of cell id matches
-        with row of cell X time matrix contained inside the fluroescence field of the
-        output dictionary
-        '''
+    '''
+    Arguments:
+    ---------------------------------------------------------------------------
+    exp: Individual experiment object loaded from the brain observatory
+    raw: Boolean. False for df/f calcium signal. True for raw fluroescence trace
+    Returns:
+    ----------------------------------------------------------------------------
+    output: Dictionary containing the following fields
+        fluorescence: data frame object containing the trial sorted responses for all
+        natural scenes activity in the given experiment session. Each element in the
+        data frame is an array with dims cells X time
+        pupil size: A data frame object containing the trial sorted pupil size for all
+        different natural scenes presented
+        pupil location: A data frame object containing the trial sorted pupil location for all
+        different natural scenes presented
+        running speed: A data frame object containing the trial sorted running speed for all
+        different natural scenes presented
+        time: A data frame object containing the trial sorted times stamps for all
+        different natural scenes presented. Aligns with the previous dictionary fields
+    cell_ids: numpy array containing unique cell ids. Index of cell id matches
+    with row of cell X time matrix contained inside the fluroescence field of the
+    output dictionary
+    '''
 
     cell_ids = exp.get_cell_specimen_ids()
 
@@ -196,10 +196,10 @@ def get_ns_specific_fluorescence_traces(exp, raw):
                 pl_temp[u_s].append(pl[start[j]:end[j], :])
                 t_temp[u_s].append(t[start[j]:end[j]])
                 rs_temp[u_s].append(rs[start[j]:end[j]])
+    output = dict()
     columns = sorted(dff_temp.keys())
     output['fluorescence'] = pd.DataFrame(data=dff_temp, columns=columns)
     columns = sorted(pr_temp.keys())
-    output = dict()
     output['pupil size'] = pd.DataFrame(data=pr_temp, columns = columns)
     output['time'] = pd.DataFrame(data=t_temp, columns = columns)
     output['pupil location'] = pd.DataFrame(data=pl_temp, columns = columns)

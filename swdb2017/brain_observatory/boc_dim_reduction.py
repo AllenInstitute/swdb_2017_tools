@@ -45,17 +45,17 @@ meta_data = data_set.get_metadata()
 ############ Load and pre-process data for dim-reduction #####################
 
 # get df/f traces for spont activity
-df, pr_df, spont_cell_ids, _ = lbs.get_spont_specific_fluorescence_traces(data_set, False)
-nTrials = len(df['spont'])
-dff_spont = np.concatenate(df['spont'][0:nTrials], axis=1)
-pr_spont = np.concatenate(pr_df['spont'][0:nTrials], axis = 0)
+out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False)
+nTrials = len(out['fluorescence']['spont'])
+dff_spont = np.concatenate(out['fluorescence']['spont'][0:nTrials], axis=1)
+pr_spont = np.concatenate(out['pupil size']['spont'][0:nTrials], axis = 0)
 
 
 # get df/f traces for natural scences
-df, pr_df, ns_cell_ids, _ = lbs.get_ns_specific_fluorescence_traces(data_set, False)
-nTrials = len(df[0])
-dff_ns = np.concatenate(df[0][0:nTrials], axis=1)
-pr_ns = np.concatenate(pr_df[0][0:nTrials], axis=0)
+out, ns_cell_ids = lbs.get_ns_specific_fluorescence_traces(data_set, False)
+nTrials = len(out['fluorescence'][0])
+dff_ns = np.concatenate(out['fluorescence'][0][0:nTrials], axis=1)
+pr_ns = np.concatenate(out['pupil size'][0][0:nTrials], axis=0)
 
 
 # Qualitative look at spont population acitivity
