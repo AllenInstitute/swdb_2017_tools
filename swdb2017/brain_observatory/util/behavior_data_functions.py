@@ -22,7 +22,8 @@ def get_filtered_df(boc, targeted_structures=None, stims=None, cre_lines=None):
     //manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
     //boc = BrainObservatoryCache(manifest_file=manifest_file)
 
-    targeted_structures : list of brain region acronyms, strings (optional)
+    targeted_structures : list
+                        brain region acronyms, strings (optional)
     stims : list of stimulus class names, strings (optional)
     cre_lines : list of cre line names, strings (optional)
 
@@ -312,5 +313,32 @@ def get_is_running(df_smooth, threshold):
         ax.plot(row['time_stamps'], row['is_running'])
 
     return df_is_running
+
+
+def get_fluor_running_traces(boc, exp):
+    # Get traces
+    exp_data = boc.get_ophys_experiment_data(exp)
+    fluor_ts, fluor_trace = exp_data.get_dff_traces()
+    exp_speed, exp_ts = exp_data.get_running_speed()
+
+    # Get the mean subtraction of the fluorescent trace
+    mean_fluor = np.mean(fluor_trace[1])
+    mean_speed = np.mean(exp_speed)
+
+    # Plot fluorescent and running traces
+    for i in fluor_trace:
+        fig, ax = plt.subplots()
+        ax.plot(fluor_ts, (fluor_trace[i] - mean_fluor))
+        ax.plot(exp_ts, (exp_speed))
+
+    # Figure aesthetics
+    plt.xlabel('Time (s)')
+    plt.ylabel('DF/F')
+    plt.ylim(-10, 100)
+    sns.despine()
+
+def get_fluor_running_traces_from_df(boc, df):
+    for i in df['id']:
+        get_fluor_running_traces(boc, i)
 
 
