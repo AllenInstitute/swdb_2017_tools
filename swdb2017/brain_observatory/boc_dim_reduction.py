@@ -48,18 +48,30 @@ out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False
 nTrials = len(out['fluorescence']['spont'])
 dff_spont = np.squeeze(np.stack(out['fluorescence']['spont'][0:nTrials],axis=1))
 pr_spont = np.concatenate(out['pupil size']['spont'][0:nTrials], axis = 0)
+f_mean = np.nanmean(dff_spont, axis =1)
+f_std = np.nanmean(dff_spont, axis=1)
+for i in range(0, len(f_mean)):
+    dff_spont[i,:] = (dff_spont[i,:] - f_mean[i])/f_std[i]
+pr_spont = (pr_spont - np.nanmean(pr_spont))/np.nanstd(pr_spont)
 
 
 # get df/f traces for natural scences
 image = 5
-binned = True
+binned = False
 out, ns_cell_ids = lbs.get_ns_specific_fluorescence_traces(data_set, False, binned = binned)
 nTrials = len(out['fluorescence'][0])
-dff_ns = np.stack(out['fluorescence'][image][0:nTrials], axis=1)
+
 if binned:
     pr_ns = out['pupil size'][image][0:nTrials]
+    dff_ns = np.stack(out['fluorescence'][image][0:nTrials], axis=1)
 else:
-    np.concatenate(out['pupil size'][image][0:nTrials], axis=0)
+    pr_ns = np.concatenate(out['pupil size'][image][0:nTrials], axis=0)
+    dff_ns = np.concatenate(out['fluorescence'][image][0:nTrials], axis=1)
+f_mean = np.nanmean(dff_ns, axis =1)
+f_std = np.nanmean(dff_ns, axis=1)
+for i in range(0, len(f_mean)):
+    dff_ns[i,:] = (dff_ns[i,:] - f_mean[i])/f_std[i]
+pr_ns = (pr_ns - np.nanmean(pr_ns))/np.nanstd(pr_ns)
 
 
 # Qualitative look at spont population acitivity
