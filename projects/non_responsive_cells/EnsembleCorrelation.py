@@ -61,6 +61,26 @@ def generate_threshold_surrogate(ens_a,ens_b,permute_num):
 # by using meshgrid and taking the upper triangle
 
 def EnsembleCorrelations(ensemble_array,surr_num):
+    
+    '''
+    Parameters
+    -----------
+    ensemble_array: numpy array
+        [cells, ensembles (binarized, ordered)]
+    
+    surr_num: int
+        Number of desired surrogate ensembles
+        
+    Returns
+    -----------
+    ensemble_matrix:
+        Return matrix of ensemble pairs above threshold
+        size rows-->cells, cols-->ensembles, but in pairs!
+    above_thresh_ensembles_boot: 
+        Indices of coupled pairs, numpy arrayof pair indices (2 columns)
+    z_values_boot:
+        Fisher-z values of selected ensembles
+    '''
 
     cell_len = ensemble_array.shape[0]
     num_ensembles = ensemble_array.shape[1]
