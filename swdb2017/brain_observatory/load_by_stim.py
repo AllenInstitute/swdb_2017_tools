@@ -84,7 +84,7 @@ def get_grating_specific_traces(exp, raw, binned=False):
     output['running speed'] = rs_df
     return output, cell_ids
 
-def get_spont_specific_fluorescence_traces(exp, raw, binned):
+def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
     '''
     Arguments:
     ---------------------------------------------------------------------------
@@ -161,7 +161,7 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned):
 
     return output, cell_ids
 
-def get_ns_specific_fluorescence_traces(exp, raw):
+def get_ns_specific_fluorescence_traces(exp, raw), binned = False:
 
     '''
     Arguments:
