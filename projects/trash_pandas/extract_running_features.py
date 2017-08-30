@@ -55,7 +55,7 @@ def insert_nans(data, idx_nonans):
     return new_data
 
 
-def extract_running_rate(data, period=6):
+def extract_rate(data, period=6):
     '''Will extract rate of change in input data.
 
     Parameters
