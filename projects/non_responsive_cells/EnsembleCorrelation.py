@@ -11,7 +11,9 @@ the paper Visual stimuli recruit intrinsically generated cortical ensembles
 Jae-eun Kang Miller, Inbal Ayzenshtat, Luis Carrillo-Reid, and Rafael Juste 
 (PNAS 2014). The following language is taken from this paper.
 
-The similarity between ensembles was evaluated using:
+The similarity between ensembles was evaluated using: (1) Pearson correlation r
+(2) Fisher transform of r
+
 A threshold for significant correlation was established for each pairwise 
 comparison. Establishing a threshold for each comparison is important because 
 in binary data the number of active neurons in a frame influences a correlation
