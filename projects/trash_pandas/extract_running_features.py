@@ -19,6 +19,8 @@ def get_processed_running(boc, dataset):
     speed_smooth = extract_smooth_running_rate(speed_rate, sigma = 2)
     speed_full = insert_nans(speed_smooth, idx_nonans)
 
+    return speed_full
+    
 # Necessary functions
 def remove_nans(data):
     ''' Remove NaNs from data.
@@ -115,6 +117,3 @@ def extract_smooth_running_rate(dataset, sigma=4):
     speed_rate = instert_nans(diff_speed, idx_nonans)
 
     return speed_rate
-
-
-
