@@ -11,6 +11,9 @@ def get_grating_specific_traces(exp, raw):
 
     pr = exp.get_pupil_size()
     pr = pr[1]
+    t, pl = exp.get_pupil_location(as_spherical = False)
+    pl_x = pl_x[:,0]
+    pl_y = pl_y[:,1]
     stim_table = exp.get_stimulus_table('static_gratings')
 
     stim_id = []
@@ -58,6 +61,9 @@ def get_spont_specific_fluorescence_traces(exp, raw):
 
     pr = exp.get_pupil_size()
     pr = pr[1]
+    t, pl = exp.get_pupil_location(as_spherical = False)
+    pl_x = pl_x[:,0]
+    pl_y = pl_y[:,1]
     stim_table = exp.get_spontaneous_activity_stimulus_table()
     dff_temp = dict()
     pr_temp = dict()
@@ -103,13 +109,14 @@ def get_ns_specific_fluorescence_traces(exp, raw):
 
     pr = exp.get_pupil_size()
     pr = pr[1]
-
+    t, pl = exp.get_pupil_location(as_spherical = False)
     stim = 'natural_scenes'
     stim_table = exp.get_stimulus_table(stim)
     unique_stim = np.sort(exp.get_stimulus_table('natural_scenes')['frame'].unique(), axis=None)
     dff_temp = dict()
     pr_temp = dict()
     t_temp = dict()
+    pl_temp = dict()
     for i, u_s in enumerate(unique_stim):
         start = stim_table['start'][stim_table['frame']==u_s].values
         end = start + 7#stim_table['end'][stim_table['frame']==u_s].values
@@ -127,14 +134,14 @@ def get_ns_specific_fluorescence_traces(exp, raw):
     t_df = pd.DataFrame(data=t_temp, columns = columns)
     return dff_df, pr_df, cell_ids, t_df
 
-def get_ns_dff_by_trial(data_set, cell_specimen_ids=None):
+def get_ns_dff_by_trial(exp, cell_specimen_ids=None):
     if cell_specimen_ids is None:
         cell_specimen_ids = exp.get_cell_specimen_ids()
 
     t, dff = exp.get_dff_traces()        # Read in calcium signal
 
     stim = 'natural_scenes'
-    stim_table = data_set.get_stimulus_table(stim)
+    stim_table = exp.get_stimulus_table(stim)
     unique_stim = np.sort(exp.get_stimulus_table('natural_scenes')['frame'].unique(), axis=None)
     dff_temp = dict()
     for i, u_s in enumerate(unique_stim):
