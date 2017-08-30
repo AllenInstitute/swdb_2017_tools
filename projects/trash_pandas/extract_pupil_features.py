@@ -111,7 +111,7 @@ def extract_smooth_saccade_rate(dataset,sigma = 4):
     dist_nonans, idx_nonans = remove_nans(dist)
     
     #Smooth trace
-    filt_data = gaussian_filter(dist,sigma)
+    filt_data = gaussian_filter(dist_nonans,sigma)
     #Extract rate from smoothed trace
     diff_data = extract_rate(filt_data,period = 10)
     #Re-insert NaNs to smoothed rate trace
