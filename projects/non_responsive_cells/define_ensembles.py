@@ -97,11 +97,11 @@ def shuffle_intervals(spkts,T,dt,binsize):
         while True:      
             np.random.shuffle(ind)            # randomly shuffle indices of intervals in train
             rand =  np.random.random((1,))
-            rndStrt = T[0] + np.ceil(rand * ntime_free / dt) * dt    #randomly chosen start time, quantised to original spike-time resolution
+            rndStrt = T[0] + np.floor(rand * ntime_free / dt) * dt    #randomly chosen start time, quantised to original spike-time resolution
             rndStrt = rndStrt.reshape(1,1)                  
             shufTs = np.hstack([rndStrt, rndStrt+np.cumsum(IEI[:,ind])]) # starting from randomly chosen start time, the times of new events in shuffled train 1,
             if np.max(shufTs) > T[1]:
-       #         print 'last event in shuffled train occurs too late'  # paranoia - should rarely happen, except with pathological cases (too few spikes)
+                # print 'last event in shuffled train occurs too late'  # paranoia - should rarely happen, except with pathological cases (too few spikes)
                 nattempts += 1
                 if nattempts > 20:
                     print 'Cannot satisfactorily shuffle this spike-train'
@@ -113,12 +113,11 @@ def shuffle_intervals(spkts,T,dt,binsize):
         idx = find_closest(time[:],shufTs[0,:])
         ctrlspksbinar[cellID,idx] = 1  # add event indices, add to shuffled onset times vector
     
-    ctrlhist = np.sum(ctrlspksbinar,axis=0)   # number of spikes for each time point for shuffled data
+    ctrlhist = np.sum(ctrlspksbinar,axis=0)
     
-    # bin total spikes 
-    ctrlhist_binned = ctrlhist.reshape(time_resamp.shape[0],time.shape[0]/time_resamp.shape[0])
-    ctrlhist_binned = np.sum(ctrlhist_binned,axis=1)
-
+    # pad with zeros and reshape for binning
+    ctrlhist_binned = make_bin(ctrlhist, time, time_resamp)
+    
     return time_resamp, ctrlhist_binned
           
 
@@ -166,14 +165,24 @@ def find_high_activity(spktms, nsurr=1000, pval = 0.05, dt=1./30, binsize=0.250,
     cutoff = nsurr*(1-pval)
     
     # binarize original data set
-    time, spktms_bin = binarize_spktms(spktms,T,dt)        
-    coactive = spktms_bin.sum(axis=0)
+    time, spktms_binar = binarize_spktms(spktms,T,dt)        
+      
+    # find coactive periods
+    coactive = spktms_binar.sum(axis=0)
            
     # bin original data set
     time_resamp = np.arange(T[0],T[1],binsize)+binsize/2  
-    coactive_binned = coactive.reshape(time_resamp.shape[0],time.shape[0]/time_resamp.shape[0])
-    coactive_binned = np.sum(coactive_binned,axis=1)
+    
+    # pad coactive with zeros to divide into bins, and reshape
+    coactive_binned = make_bin(coactive, time, time_resamp)
+    
     surpasses_surr = np.zeros(coactive_binned.shape)
+    
+    # find cont of binarized spktms in larger bins (pad with zeros to divide into bins, and reshape)
+    spktms_binned = np.zeros([spktms.shape[0],coactive_binned.shape[0]])
+    for i in range(spktms_binned.shape[0]):
+        spktms_binned[i] = make_bin(spktms_binar[i,:], time, time_resamp)
+        
        
     # for every surrogate data set 
     for _ in range(nsurr):
@@ -183,9 +192,20 @@ def find_high_activity(spktms, nsurr=1000, pval = 0.05, dt=1./30, binsize=0.250,
         surpasses_surr += np.array(coactive_binned>coactive_surr_binned,dtype=int)
        
     ensembles = np.array(surpasses_surr > cutoff, dtype=int)
-    return time_resamp, ensembles 
+    return time_resamp, ensembles
 
 
+def make_bin(x, t, t_new):
+    # pad with zeros
+    num_zeros_to_pad = t_new.shape[0]-(t.shape[0]%t_new.shape[0])
+    x_new = np.zeros(x.shape[0]+num_zeros_to_pad)
+    x_new[:x.shape[0]] = x
+    
+    x_new = x_new.reshape( t_new.shape[0], x_new.shape[0]/t_new.shape[0])
+    x_new = np.sum(x_new, axis=1)
+    
+    return x_new
+    
 
 def find_closest(A, target):
     '''
