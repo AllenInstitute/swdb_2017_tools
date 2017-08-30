@@ -11,17 +11,8 @@ from scipy.ndimage.filters import gaussian_filter
 manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
 boc = BrainObservatoryCache(manifest_file=manifest_file)
 
-# Main function
-def get_processed_running(boc, dataset):
-    speed_arr  = dataset.get_running_speed()
-    speed_nonans = remove_nans(speed_arr)
-    speed_rate = extract_rate(speed_nonans, period = 6)
-    speed_smooth = extract_smooth_running_rate(speed_rate, sigma = 2)
-    speed_full = insert_nans(speed_smooth, idx_nonans)
-
-    return speed_full
     
-# Necessary functions
+# Necessary functions to define
 def remove_nans(data):
     ''' Remove NaNs from data.
 
@@ -87,7 +78,7 @@ def extract_rate(data, period=6):
 
     return rate
 
-
+# USE ME!!
 def extract_smooth_running_rate(dataset, sigma=4):
     '''Extract running rate from smoothed running data
 
