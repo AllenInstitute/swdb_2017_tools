@@ -14,6 +14,8 @@ from matplotlib.collections import LineCollection
 import scipy.ndimage.filters as filt
 from pearson_corr_coeff import pearson_corr_coeff
 from swdb2017.brain_observatory.util.cell_specimen_ops import get_run_mod_cells
+import extract_pupil_features as epf
+import extract_running_features as err
 # Import brain observatory cache class. This is responsible for downloading any data
 # or metadata
 
