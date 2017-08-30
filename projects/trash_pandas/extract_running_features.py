@@ -35,7 +35,7 @@ def remove_nans(data):
 
     # Keep only indices with non-nan data points
     idx_nonans = ~np.isnan(data)
-    temp = data.copy()
+    temp = data
     data_nonans = temp[idx_nonans]
 
     return data_nonans, idx_nonans
@@ -108,9 +108,9 @@ def extract_smooth_running_rate(dataset, sigma=4):
     # Smooth trace
     filt_speed = gaussian_filter(speed_nonans, sigma)
     # Extract rate from smoothed trace
-    diff_speed = extract_rate(filt_area, period=10)
+    diff_speed = extract_rate(filt_speed, period=10)
 
     # Re-insert NaNs to smoothed rate trace
-    speed_rate = instert_nans(diff_speed, idx_nonans)
+    speed_rate = insert_nans(diff_speed, idx_nonans)
 
     return speed_rate
