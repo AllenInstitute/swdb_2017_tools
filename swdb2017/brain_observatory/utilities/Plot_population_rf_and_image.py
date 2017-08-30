@@ -74,6 +74,7 @@ def get_population_rf(boc, experiment_id):
     c_flag = 'C'
     lsn_name = 'locally_sparse_noise'
     rf_name = 'receptive_field_lsn'
+    #
     for a in boc.get_ophys_experiments(experiment_container_ids=[experiment_id]):
         if a['session_type'].endswith('2'):
             c_flag = 'C2'
