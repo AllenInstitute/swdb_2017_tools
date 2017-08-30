@@ -104,3 +104,14 @@ def get_all_representational_similarity_matrices(BrainObservatoryCache, session_
     return {'representational_similarity': rs, 'experiment_ids': exp_ids, 'session_ids': session_ids}
 
 
+def get_all_images(BrainObservatoryCache, stimuli,session_type, savepath,save_option):
+        first_session_id = BrainObservatoryCache.get_ophys_experiments(stimuli = [stimuli])[0]['id']
+        image_set = BrainObservatoryCache.get_ophys_experiment_data(ophys_experiment_id=first_session_id) 
+        images = image_set.get_stimulus_template(stimuli)
+        if save_option == 1:
+            for i in range(images.shape[0]):
+                savename = 'natural_scene' + str(i+1) + '.jpg'
+                fullfile = os.path.join(savepath,savename)
+                scipy.misc.imsave(fullfile, images[i,:,:])
+        elif save_option == 0:        
+            return images
