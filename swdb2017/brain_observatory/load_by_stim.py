@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def get_grating_specific_traces(exp, raw):
+def get_grating_specific_traces(exp, raw, binned=False):
 
     '''
     Arguments:
@@ -52,16 +52,30 @@ def get_grating_specific_traces(exp, raw):
     t_df = pd.DataFrame([], index = range(0,50), columns = columns)
     pl_df = pd.DataFrame([], index = range(0,50), columns = columns)
     rs_df = pd.DataFrame([], index = range(0,50), columns = columns)
-    for j, us in enumerate(stim_ids):
-        start = stim_table['start'][stim_table['id']==us].values
-        end = stim_table['end'][stim_table['id']==us].values
 
-        for i in range(0, len(start)):
-                df[us][i]=(dff[:,start[i]:end[i]])
-                pr_df[us][i] = pr[start[i]:end[i]]
-                pl_df[us][i] = pl[start[i]:end[i], :]
-                t_df[us][i] = t[start[i]:end[i]]
-                rs_df[us[i]] = rs[start[i]:end[i]]
+    if binned:
+        for j, us in enumerate(stim_ids):
+            start = stim_table['start'][stim_table['id']==us].values
+            end = stim_table['end'][stim_table['id']==us].values
+
+            for i in range(0, len(start)):
+                    df[us][i]= np.mean((dff[:,start[i]:end[i]]), axis=1)
+                    pr_df[us][i] = np.nanmean(pr[start[i]:end[i]])
+                    pl_df[us][i] = np.nanmean(pl[start[i]:end[i], :], axis = 0)
+                    t_df[us][i] = np.nanmean(t[start[i]:end[i]])
+                    rs_df[us[i]] = np.nanmean(rs[start[i]:end[i]])
+
+    else:
+        for j, us in enumerate(stim_ids):
+            start = stim_table['start'][stim_table['id']==us].values
+            end = stim_table['end'][stim_table['id']==us].values
+
+            for i in range(0, len(start)):
+                    df[us][i]=(dff[:,start[i]:end[i]])
+                    pr_df[us][i] = pr[start[i]:end[i]]
+                    pl_df[us][i] = pl[start[i]:end[i], :]
+                    t_df[us][i] = t[start[i]:end[i]]
+                    rs_df[us[i]] = rs[start[i]:end[i]]
     output = dict()
     output['fluorescence'] = df
     output['pupil size'] = pr_df
@@ -70,7 +84,7 @@ def get_grating_specific_traces(exp, raw):
     output['running speed'] = rs_df
     return output, cell_ids
 
-def get_spont_specific_fluorescence_traces(exp, raw):
+def get_spont_specific_fluorescence_traces(exp, raw, binned):
     '''
     Arguments:
     ---------------------------------------------------------------------------
@@ -117,14 +131,24 @@ def get_spont_specific_fluorescence_traces(exp, raw):
     t_temp['spont'] = []
     rs_temp['spont'] = []
 
-    for i in range(0, len(stim_table['start'].values)):
-        start = stim_table['start'][i]
-        end = stim_table['end'][i]
-        dff_temp['spont'].append(dff[:,start:end])
-        pr_temp['spont'].append(pr[start:end])
-        pl_temp['spont'].append(pl[start:end,:])
-        t_temp['spont'].append(t[start:end])
-        rs_temp['spont'].append(rs[start:end])
+    if binned:
+        for i in range(0, len(stim_table['start'].values)):
+            start = stim_table['start'][i]
+            end = stim_table['end'][i]
+            dff_temp['spont'].append(np.nanmean(dff[:,start:end],axis=1))
+            pr_temp['spont'].append(np.nanmean(pr[start:end]))
+            pl_temp['spont'].append(np.nanmean(pl[start:end,:],axis=0))
+            t_temp['spont'].append(np.nanmean(t[start:end]))
+            rs_temp['spont'].append(np.nanmean(rs[start:end]))
+    else:
+        for i in range(0, len(stim_table['start'].values)):
+            start = stim_table['start'][i]
+            end = stim_table['end'][i]
+            dff_temp['spont'].append(dff[:,start:end])
+            pr_temp['spont'].append(pr[start:end])
+            pl_temp['spont'].append(pl[start:end,:])
+            t_temp['spont'].append(t[start:end])
+            rs_temp['spont'].append(rs[start:end])
 
     output = dict()
     columns = sorted(dff_temp.keys())
@@ -182,20 +206,37 @@ def get_ns_specific_fluorescence_traces(exp, raw):
     t_temp = dict()
     pl_temp = dict()
     rs_temp = dict()
-    for i, u_s in enumerate(unique_stim):
-        start = stim_table['start'][stim_table['frame']==u_s].values
-        end = start + 7#stim_table['end'][stim_table['frame']==u_s].values
-        dff_temp[u_s] = []
-        pr_temp[u_s] = []
-        pl_temp[u_s] = []
-        t_temp[u_s] = []
-        rs_temp[u_s] = []
-        for j in range(0, len(start)):
-                dff_temp[u_s].append(dff[:,start[j]:end[j]])
-                pr_temp[u_s].append(pr[start[j]:end[j]])
-                pl_temp[u_s].append(pl[start[j]:end[j], :])
-                t_temp[u_s].append(t[start[j]:end[j]])
-                rs_temp[u_s].append(rs[start[j]:end[j]])
+
+    if binned:
+        for i, u_s in enumerate(unique_stim):
+            start = stim_table['start'][stim_table['frame']==u_s].values
+            end = start + 7#stim_table['end'][stim_table['frame']==u_s].values
+            dff_temp[u_s] = []
+            pr_temp[u_s] = []
+            pl_temp[u_s] = []
+            t_temp[u_s] = []
+            rs_temp[u_s] = []
+            for j in range(0, len(start)):
+                    dff_temp[u_s].append(np.nanmean(dff[:,start[j]:end[j]], axis = 1)
+                    pr_temp[u_s].append(np.nanmean(pr[start[j]:end[j]]))
+                    pl_temp[u_s].append(np.nanmean(pl[start[j]:end[j], :], axis=0))
+                    t_temp[u_s].append(np.nanmean(t[start[j]:end[j]]))
+                    rs_temp[u_s].append(np.nanmean(rs[start[j]:end[j]]))
+    else:
+        for i, u_s in enumerate(unique_stim):
+            start = stim_table['start'][stim_table['frame']==u_s].values
+            end = start + 7#stim_table['end'][stim_table['frame']==u_s].values
+            dff_temp[u_s] = []
+            pr_temp[u_s] = []
+            pl_temp[u_s] = []
+            t_temp[u_s] = []
+            rs_temp[u_s] = []
+            for j in range(0, len(start)):
+                    dff_temp[u_s].append(dff[:,start[j]:end[j]])
+                    pr_temp[u_s].append(pr[start[j]:end[j]])
+                    pl_temp[u_s].append(pl[start[j]:end[j], :])
+                    t_temp[u_s].append(t[start[j]:end[j]])
+                    rs_temp[u_s].append(rs[start[j]:end[j]])
     output = dict()
     columns = sorted(dff_temp.keys())
     output['fluorescence'] = pd.DataFrame(data=dff_temp, columns=columns)
