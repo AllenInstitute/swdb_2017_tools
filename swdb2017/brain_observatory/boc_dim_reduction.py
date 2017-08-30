@@ -44,17 +44,19 @@ meta_data = data_set.get_metadata()
 ############ Load and pre-process data for dim-reduction #####################
 
 # get df/f traces for spont activity
-out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False)
+out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False, binned=True)
 nTrials = len(out['fluorescence']['spont'])
-dff_spont = np.concatenate(out['fluorescence']['spont'][0:nTrials], axis=1)
-pr_spont = np.concatenate(out['pupil size']['spont'][0:nTrials], axis = 0)
+dff_spont = np.stack(out['fluorescence']['spont'][0:nTrials],axis=1)
+pr_spont = out['pupil size']['spont'][0:nTrials] #np.concatenate(out['pupil size']['spont'][0:nTrials], axis = 0)
 
 
 # get df/f traces for natural scences
-out, ns_cell_ids = lbs.get_ns_specific_fluorescence_traces(data_set, False)
+out, ns_cell_ids = lbs.get_ns_specific_fluorescence_traces(data_set, False, binned = True)
 nTrials = len(out['fluorescence'][0])
-dff_ns = np.concatenate(out['fluorescence'][0][0:nTrials], axis=1)
-pr_ns = np.concatenate(out['pupil size'][0][0:nTrials], axis=0)
+dff_ns = np.stack(out['fluorescence'][0][0:nTrials], axis=1)
+plt.imshow(dff_ns)
+plt.show()
+pr_ns = out['pupil size'][0][0:nTrials]  #np.concatenate(out['pupil size'][0][0:nTrials], axis=0)
 
 
 # Qualitative look at spont population acitivity
@@ -74,8 +76,13 @@ plt.ylabel('cells')
 
 
 ######## Singular value decomposition of NS responses for given stim ##########
-U, S, V = np.linalg.svd(dff_ns)
+U, S, V = np.linalg.svd(dff_ns.T)
 pcs = U*S
+plt.figure()
+plt.subplot(211)
+plt.plot(V.T[0])
+plt.subplot(212)
+plt.plot(V[0])
 # Make single trial projections
 Vt = V.transpose()
 l = Vt.shape[1]
@@ -107,12 +114,6 @@ ax[0,1].autoscale(True)
 
 ############ Singular value decomposition of spont acitivity ###################
 U, S, V = np.linalg.svd(dff_spont)
-print(U.shape)
-plt.figure()
-plt.subplot(211)
-plt.plot(V.T[0])
-plt.subplot(212)
-plt.plot(V[0])
 
 pcs = U*S
 var_explained = []

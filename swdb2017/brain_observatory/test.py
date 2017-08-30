@@ -15,6 +15,8 @@ print(x.shape)
 
 print(pearson_corr_coeff(x,y))
 
+print(np.nanmean([np.nan,1]))
+
 print(np.corrcoef(x,y))
 plt.figure()
 plt.imshow(np.corrcoef(x.squeeze(), y.squeeze()), cmap='plasma')

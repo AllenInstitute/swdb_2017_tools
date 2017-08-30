@@ -217,11 +217,12 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
             t_temp[u_s] = []
             rs_temp[u_s] = []
             for j in range(0, len(start)):
-                    dff_temp[u_s].append(np.nanmean(dff[:,start[j]:end[j]], axis = 1)
+                    dff_temp[u_s].append(np.nanmean(dff[:,start[j]:end[j]], axis = 1))
                     pr_temp[u_s].append(np.nanmean(pr[start[j]:end[j]]))
                     pl_temp[u_s].append(np.nanmean(pl[start[j]:end[j], :], axis=0))
                     t_temp[u_s].append(np.nanmean(t[start[j]:end[j]]))
                     rs_temp[u_s].append(np.nanmean(rs[start[j]:end[j]]))
+            
     else:
         for i, u_s in enumerate(unique_stim):
             start = stim_table['start'][stim_table['frame']==u_s].values
