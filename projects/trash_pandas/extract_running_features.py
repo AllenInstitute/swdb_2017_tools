@@ -36,7 +36,7 @@ def insert_nans(data, idx_nonans):
 
     Parameters
     ----------
-    data : array
+    data : np.ndarray
         data with no NaNs in it
     idx_nonans : array
         boolean containing True where original trace had no NaNs and False where original trace had NaNs
@@ -55,7 +55,7 @@ def insert_nans(data, idx_nonans):
     return new_data
 
 
-def extract_rate(data, period=6):
+def extract_running_rate(data, period=6):
     '''Will extract rate of change in input data.
 
     Parameters
@@ -69,7 +69,7 @@ def extract_rate(data, period=6):
     Returns
     -------
     rate : array
-    contains rate'''
+        contains rate'''
 
     rate = pd.DataFrame(data).diff(periods=period)
     rate = rate.values.squeeze()
@@ -77,7 +77,7 @@ def extract_rate(data, period=6):
     return rate
 
 
-def extract_smooth_running_rate(dataset, sigma=4):
+def extract_smooth_running_rate(dataset, sigma=2):
     '''Extract running rate from smoothed running data
 
     Parameters
@@ -89,9 +89,7 @@ def extract_smooth_running_rate(dataset, sigma=4):
     Returns
     -------
     running_rate :
-        smoothed pupil area rate with NaNs reinserted
-    pupil_diameter_rate :
-        smoothed pupil diameter rate with NaNs reinserted '''
+        smoothed running rate with NaNs reinserted'''
 
     timestamps, running_speed = dataset.get_running_speed()
 
@@ -99,6 +97,7 @@ def extract_smooth_running_rate(dataset, sigma=4):
 
     # Smooth trace
     filt_speed = gaussian_filter(speed_nonans, sigma)
+
     # Extract rate from smoothed trace
     diff_speed = extract_rate(filt_speed, period=10)
 
@@ -106,3 +105,65 @@ def extract_smooth_running_rate(dataset, sigma=4):
     speed_rate = insert_nans(diff_speed, idx_nonans)
 
     return speed_rate
+
+def extract_smooth_running_speed(dataset, sigma = 2):
+    '''Extract smoothed running speed trace
+
+     Parameters
+     ----------
+     dataset : NWB
+     sigma : int
+         smoothing parameter for gaussian filter function
+
+     Returns
+     -------
+     running_speed_smooth :
+         smoothed running rate with NaNs reinserted'''
+
+    timestamps, running_speed = dataset.get_running_speed()
+
+    speed_nonans, idx_nonans = remove_nans(running_speed)
+
+    # Smooth trace
+    filt_speed = gaussian_filter(speed_nonans, sigma)
+
+    # Re-insert NaNs to smoothed rate trace
+    speed_trace = insert_nans(filt_speed, idx_nonans)
+
+    return speed_trace
+
+
+def extract_is_running(dataset, threshold):
+    '''Assign a binary value to running (1) or not running (0) based on an input threshold
+    Parameters
+    ----------
+    dataset : NWB
+    threshold : int
+        speed (cm/s) that will define running state
+
+    Returns
+    -------
+    is_running_full : array
+        binary values denoting running (1) or not running (0)'''
+
+    timestamps, running_speed = dataset.get_running_speed()
+
+    speed_nonans, idx_nonans = remove_nans(running_speed)
+
+    # Smooth running trace
+    filt_speed = gaussian_filter(speed_nonans, sigma=2)
+
+    # Create dataframe for running speed and time stamps
+    df_is_running = pd.DataFrame(columns=['filt_speed'])
+    df_is_running['filt_speed'] = filt_speed
+
+    # Iterate through dataframe to assign binary values
+    is_running = [1 if row['filt_speed'] > threshold else 0 for i, row in df_is_running.iterrows()]
+
+    # Convert dataframe column into an array
+    is_running_arr = np.array(is_running)
+
+    # Re-insert Nans
+    is_running_full = insert_nans(is_running_arr, idx_nonans)
+
+    return is_running_full
