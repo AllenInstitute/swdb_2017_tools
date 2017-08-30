@@ -23,8 +23,13 @@ def remove_nans(data):
 
     
     #Keep only indices with non-nan data points
+<<<<<<< HEAD
     idx_nonans = ~np.isnan(data) 
     temp = np.array(data)
+=======
+    idx_nonans = ~np.isnan(data)
+    temp = data
+>>>>>>> dim_reduction
     data_nonans = temp[idx_nonans]
 
     return data_nonans, idx_nonans  
