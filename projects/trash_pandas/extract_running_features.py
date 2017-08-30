@@ -5,6 +5,7 @@
 # Imports
 import os
 import numpy as np
+import pandas as pd
 from scipy.ndimage.filters import gaussian_filter
 
 
@@ -91,7 +92,7 @@ def extract_smooth_running_rate(dataset, sigma=2):
     running_rate :
         smoothed running rate with NaNs reinserted'''
 
-    timestamps, running_speed = dataset.get_running_speed()
+    running_speed, timestamps = dataset.get_running_speed()
 
     speed_nonans, idx_nonans = remove_nans(running_speed)
 
@@ -120,7 +121,7 @@ def extract_smooth_running_speed(dataset, sigma = 2):
      running_speed_smooth :
          smoothed running rate with NaNs reinserted'''
 
-    timestamps, running_speed = dataset.get_running_speed()
+    running_speed, timestamps = dataset.get_running_speed()
 
     speed_nonans, idx_nonans = remove_nans(running_speed)
 
@@ -146,7 +147,7 @@ def extract_is_running(dataset, threshold):
     is_running_full : array
         binary values denoting running (1) or not running (0)'''
 
-    timestamps, running_speed = dataset.get_running_speed()
+    running_speed, timestamps = dataset.get_running_speed()
 
     speed_nonans, idx_nonans = remove_nans(running_speed)
 
