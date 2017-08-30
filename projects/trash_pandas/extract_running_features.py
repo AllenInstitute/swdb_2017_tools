@@ -8,16 +8,6 @@ import numpy as np
 from scipy.ndimage.filters import gaussian_filter
 
 
-# Main function
-def get_processed_running(boc, dataset):
-    speed_arr  = dataset.get_running_speed()
-    speed_nonans = remove_nans(speed_arr)
-    speed_rate = extract_rate(speed_nonans, period = 6)
-    speed_smooth = extract_smooth_running_rate(speed_rate, sigma = 2)
-    speed_full = insert_nans(speed_smooth, idx_nonans)
-
-    return speed_full
-
 # Necessary functions
 def remove_nans(data):
     ''' Remove NaNs from data.
