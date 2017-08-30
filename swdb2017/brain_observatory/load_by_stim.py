@@ -24,6 +24,7 @@ def get_grating_specific_traces(exp, raw):
     columns = stim_ids
     df = pd.DataFrame([], index = range(0,50), columns = columns)
     pr_df = pd.DataFrame([], index = range(0,50), columns = columns)
+    t_df = pd.DataFrame([], index = range(0,50), columns = columns)
     for j, us in enumerate(stim_ids):
         start = stim_table['start'][stim_table['id']==us].values
         end = stim_table['end'][stim_table['id']==us].values
@@ -31,8 +32,8 @@ def get_grating_specific_traces(exp, raw):
         for i in range(0, len(start)):
                 df[us][i]=(dff[:,start[i]:end[i]])
                 pr_df[us][i] = pr[start[i]:end[i]]
-
-    return df, pr_df, cell_ids, t
+                t_df[us][i] = t[start[i]:end[i]]
+    return df, pr_df, cell_ids, t_df
 
 def get_spont_specific_fluorescence_traces(exp, raw):
     # Arguments:
@@ -60,22 +61,24 @@ def get_spont_specific_fluorescence_traces(exp, raw):
     stim_table = exp.get_spontaneous_activity_stimulus_table()
     dff_temp = dict()
     pr_temp = dict()
+    t_temp = dict()
     dff_temp['spont']= []
     pr_temp['spont']= []
-
+    t_temp['spont'] = []
     for i in range(0, len(stim_table['start'].values)):
         start = stim_table['start'][i]
         end = stim_table['end'][i]
         dff_temp['spont'].append(dff[:,start:end])
         pr_temp['spont'].append(pr[start:end])
-
+        t_temp['spont'].append(t[start:end])
     columns = sorted(dff_temp.keys())
     dff_df = pd.DataFrame(data=dff_temp, columns=columns)
     columns = sorted(pr_temp.keys())
     pr_df = pd.DataFrame(data=pr_temp, columns=columns)
-    return dff_df, pr_df, cell_ids, t
+    t_df = pd.DataFrame(data=t_temp, columns = columns)
+    return dff_df, pr_df, cell_ids, t_df
 
-def get_ns_specific_fluorescence_traces(exp, raw=False):
+def get_ns_specific_fluorescence_traces(exp, raw):
 
     # Arguments:
     # exp: Individual experiment object loaded from the brain observatory
@@ -106,22 +109,26 @@ def get_ns_specific_fluorescence_traces(exp, raw=False):
     unique_stim = np.sort(exp.get_stimulus_table('natural_scenes')['frame'].unique(), axis=None)
     dff_temp = dict()
     pr_temp = dict()
+    t_temp = dict()
     for i, u_s in enumerate(unique_stim):
         start = stim_table['start'][stim_table['frame']==u_s].values
         end = start + 7#stim_table['end'][stim_table['frame']==u_s].values
         dff_temp[u_s] = []
         pr_temp[u_s] = []
+        t_temp[u_s] = []
         for j in range(0, len(start)):
                 dff_temp[u_s].append(dff[:,start[j]:end[j]])
                 pr_temp[u_s].append(pr[start[j]:end[j]])
+                t_temp[u_s].append(t[start[i]:end[i]])
     columns = sorted(dff_temp.keys())
     dff_df = pd.DataFrame(data=dff_temp, columns=columns)
     columns = sorted(pr_temp.keys())
     pr_df = pd.DataFrame(data=pr_temp, columns = columns)
-    return dff_df, pr_df, cell_ids
+    t_df = pd.DataFrame(data=t_temp, columns = columns)
+    return dff_df, pr_df, cell_ids, t_df
 
 def get_ns_dff_by_trial(data_set, cell_specimen_ids=None):
-    if cell_specimen_ids is None
+    if cell_specimen_ids is None:
         cell_specimen_ids = exp.get_cell_specimen_ids()
 
     t, dff = exp.get_dff_traces()        # Read in calcium signal
@@ -139,5 +146,3 @@ def get_ns_dff_by_trial(data_set, cell_specimen_ids=None):
     columns = sorted(dff_temp.keys())
     dff_df = pd.DataFrame(data=dff_temp, columns=columns)
     return dff_df
-
-
