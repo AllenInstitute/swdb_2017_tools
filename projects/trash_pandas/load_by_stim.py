@@ -40,8 +40,10 @@ def get_grating_specific_traces(exp, raw, binned=False):
     t, pl = exp.get_pupil_location(as_spherical = False)
     t, rs = exp.get_running_speed()
     p_rate, _ = epf.extract_smooth_pupil_rate(exp)
-    pr_smooth = epf.extract_smooth_pupil(exp)         # Sigma is defaulted to 4
+    pr_smooth, _ = epf.extract_smooth_pupil(exp)         # Sigma is defaulted to 4
     sac_rate = epf.extract_smooth_saccade_rate(exp)
+    rs_smooth = erf.extract_smooth_running_speed(exp)    # Sigma is deafult = 2
+    rr_smooth = erf.extract_smooth_running_rate(exp)     # Sigma is default = 2
 
     stim_table = exp.get_stimulus_table('static_gratings')
 
@@ -61,6 +63,8 @@ def get_grating_specific_traces(exp, raw, binned=False):
     p_rate_df = pd.DataFrame([], index = range(0,50), columns = columns)
     sac_rate_df = pd.DataFrame([], index = range(0,50), columns = columns)
     pr_smooth_df = pd.DataFrame([], index = range(0,50), columns = columns)
+    rs_smooth_df = pd.DataFrame([], index = range(0,50), columns = columns)
+    rr_smooth_df = pd.DataFrame([], index = range(0,50), columns = columns)
 
 
     if binned:
@@ -77,6 +81,8 @@ def get_grating_specific_traces(exp, raw, binned=False):
                     p_rate_df[us][i] = np.nanmean(p_rate[start[i]:end[i]])
                     sac_rate_df[us][i] = np.nanmean(sac_rate[start[i]:end[i]])
                     pr_smooth_df[us][i] = np.nanmean(pr_smooth[start[i]:end[i]])
+                    rs_smooth_df[us][i] = np.nanmean(rs_smooth[start[i]:end[i]])
+                    rr_smooth_df[us][i] = np.nanmean(rr_smooth[start[i]:end[i]])
 
     else:
         for j, us in enumerate(stim_ids):
@@ -92,6 +98,8 @@ def get_grating_specific_traces(exp, raw, binned=False):
                     p_rate_df[us][i] = (p_rate[start[i]:end[i]])
                     sac_rate_df[us][i] = (sac_rate[start[i]:end[i]])
                     pr_smooth_df[us][i] = pr_smooth[start[i]:end[i]]
+                    rs_smooth_df[us][i] = rs_smooth[start[i]:end[i]]
+                    rr_smooth_df[us][i] = rr_smooth[start[i]:end[i]]
     output = dict()
     output['fluorescence'] = df
     output['pupil size'] = pr_df
@@ -101,6 +109,9 @@ def get_grating_specific_traces(exp, raw, binned=False):
     output['pupil rate'] = p_rate_df
     output['saccade rate'] = sac_rate_df
     output['pupil smooth'] = pr_smooth_df
+    output['running speed smooth'] = rs_smooth_df
+    output['running rate smooth'] = rr_smooth_df
+
     return output, cell_ids
 
 def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
@@ -138,7 +149,9 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
     t, rs = exp.get_running_speed()
     p_rate, _ = epf.extract_smooth_pupil_rate(exp)
     sac_rate = epf.extract_smooth_saccade_rate(exp)
-    pr_smooth = epf.extract_smooth_pupil(exp)         # Sigma is defaulted to 4
+    pr_smooth, _ = epf.extract_smooth_pupil(exp)         # Sigma is defaulted to 4
+    rs_smooth = erf.extract_smooth_running_speed(exp)    # Sigma is deafult = 2
+    rr_smooth = erf.extract_smooth_running_rate(exp)     # Sigma is default = 2
 
     stim_table = exp.get_spontaneous_activity_stimulus_table()
     dff_temp = dict(spont=[])
@@ -149,6 +162,9 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
     p_rate_temp = dict(spont=[])
     sac_rate_temp = dict(spont=[])
     pr_smooth_temp = dict(spont=[])
+    rs_smooth_temp = dict(spont=[])
+    rr_smooth_temp = dict(spont=[])
+
 
     if binned:
         for i in range(0,len(stim_table['start'].values)):
@@ -162,6 +178,9 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
             p_rate_temp['spont'].append(np.nanmean(p_rate[start:end]))
             sac_rate_temp['spont'].append(np.append(sac_rate[start:end]))
             pr_smooth_temp['spont'].append(np.nanmean(pr_smooth[start:end]))
+            rs_smooth_temp['spont'].append(np.nanmean(rs_smooth[start:end]))
+            rr_smooth_temp['spont'].append(np.nanmean(rr_smooth[start:end]))
+
     else:
         for i in range(0, len(stim_table['start'].values)):
             start = stim_table['start'][i]
@@ -174,6 +193,8 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
             p_rate_temp['spont'].append((p_rate[start:end]))
             sac_rate_temp['spont'].append((sac_rate[start:end]))
             pr_smooth_temp['spont'].append(pr_smooth[start:end])
+            rs_smooth_temp['spont'].append(rs_smooth[start:end])
+            rr_smooth_temp['spont'].append(rr_smooth[start:end])
 
     output = dict()
     columns = sorted(dff_temp.keys())
@@ -186,6 +207,8 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
     output['pupil rate'] = pd.DataFrame(data = p_rate_temp, columns = columns)
     output['saccade rate'] = pd.DataFrame(data = sac_rate_temp, columns = columns)
     output['pupil smooth'] = pd.DataFrame(data = pr_smooth_temp, columns = columns)
+    output['running speed smooth'] = pd.DataFrame(data = rs_smooth_temp, columns = columns)
+    output['running rate smooth'] = pd.DataFrame(data = rr_smooth_temp, columns = columns)
 
     return output, cell_ids
 
@@ -230,7 +253,9 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
     t, rs = exp.get_running_speed()
     p_rate, _ = epf.extract_smooth_pupil_rate(exp)
     sac_rate = epf.extract_smooth_saccade_rate(exp)
-    pr_smooth = epf.extract_smooth_pupil(exp)         # Sigma is defaulted to 4
+    pr_smooth, _ = epf.extract_smooth_pupil(exp)         # Sigma is defaulted to 4
+    rs_smooth = erf.extract_smooth_running_speed(exp)    # Sigma is deafult = 2
+    rr_smooth = erf.extract_smooth_running_rate(exp)     # Sigma is default = 2
 
     stim = 'natural_scenes'
     stim_table = exp.get_stimulus_table(stim)
@@ -244,6 +269,8 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
     p_rate_temp = dict()
     sac_rate_temp =dict()
     pr_smooth_temp = dict()
+    rs_smooth_temp = dict()
+    rr_smooth_temp = dict()
 
     if binned:
         for i, u_s in enumerate(unique_stim):
@@ -256,7 +283,9 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
             rs_temp[u_s] = []
             p_rate_temp[u_s] = []
             sac_rate_temp[u_s] = []
-            pr_smooth_temp = []
+            pr_smooth_temp[u_s] = []
+            rr_smooth_temp[u_s] = []
+            rs_smooth_temp[u_s] = []
 
             for j in range(0, len(start)):
                     dff_temp[u_s].append(np.nanmean(dff[:,start[j]:end[j]], axis = 1))
@@ -267,7 +296,8 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
                     p_rate_temp[u_s].append(np.nanmean(p_rate[start[j]:end[j]]))
                     sac_rate_temp[u_s].append(np.nanmean(sac_rate[start[j]:end[j]]))
                     pr_smooth_temp[u_s].append(np.nanmean(pr_smooth[start[j]:end[j]]))
-
+                    rr_smooth_temp[u_s].append(np.nanmean(rr_smooth[start[j]:end[j]]))
+                    rs_smooth_temp[u_s].append(np.nanmean(rs_smooth[start[j]:end[j]]))
     else:
         for i, u_s in enumerate(unique_stim):
             start = stim_table['start'][stim_table['frame']==u_s].values
@@ -288,6 +318,8 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
                     p_rate_temp[u_s].append((p_rate[start[j]:end[j]]))
                     sac_rate_temp[u_s].append((sac_rate[start[j]:end[j]]))
                     pr_smooth_temp[u_s].append((pr_smooth[start[j]:end[j]]))
+                    rs_smooth_temp[u_s].append((rs_smooth[start[j]:end[j]]))
+                    rr_smooth_temp[u_s].append((rr_smooth[start[j]:end[j]]))
     output = dict()
     columns = sorted(dff_temp.keys())
     output['fluorescence'] = pd.DataFrame(data=dff_temp, columns=columns)
@@ -299,6 +331,8 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
     output['pupil rate'] = pd.DataFrame(data= p_rate_temp, columns = columns)
     output['saccade rate'] = pd.DataFrame(data= sac_rate_temp, columns = columns)
     output['pupil smooth'] = pd.DataFrame(data= pr_smooth_temp, columns = columns)
+    output['running speed smooth'] = pd.DataFrame(data= rs_smooth_temp, columns = columns)
+    output['running rate smooth'] = pd.DataFrame(data= rr_smooth_temp, columns = columns)
     return output, cell_ids
 
 def get_ns_dff_by_trial(exp, cell_specimen_ids=None):
