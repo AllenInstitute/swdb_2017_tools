@@ -24,7 +24,7 @@ def remove_nans(data):
 
     #Keep only indices with non-nan data points
     idx_nonans = ~np.isnan(data)
-    temp = data.copy()
+    temp = data
     data_nonans = temp[idx_nonans]
 
     return data_nonans, idx_nonans
