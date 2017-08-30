@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram
 import os
 
-def create_dendogram(d,nodes = None,leaves = None, inner_nodes = None):
+def create_dendrogram(d,nodes = None,leaves = None, inner_nodes = None):
     '''
     Parameters
     ----------
