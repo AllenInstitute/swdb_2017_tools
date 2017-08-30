@@ -46,10 +46,17 @@ meta_data = data_set.get_metadata()
 ############ Load and pre-process data for dim-reduction #####################
 
 # get df/f traces for spont activity
-out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False, binned=False)
+binned = False
+out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False, binned=binned)
 nTrials = len(out['fluorescence']['spont'])
-dff_spont = np.squeeze(np.stack(out['fluorescence']['spont'][0:nTrials],axis=1))
-pr_spont = np.concatenate(out['pupil size']['spont'][0:nTrials], axis = 0)
+
+if binned:
+    pr_spont = out['pupil size']['spont'][0:nTrials]
+    dff_spont = np.stack(out['fluorescence']['spont'][0:nTrials], axis=1)
+else:
+    pr_spont = np.concatenate(out['pupil size']['spont'][0:nTrials], axis=0)
+    dff_spont = np.concatenate(out['fluorescence']['spont'][0:nTrials], axis=1)
+
 f_mean = np.nanmean(dff_spont, axis =1)
 f_std = np.nanmean(dff_spont, axis=1)
 for i in range(0, len(f_mean)):
@@ -69,6 +76,7 @@ if binned:
 else:
     pr_ns = np.concatenate(out['pupil size'][image][0:nTrials], axis=0)
     dff_ns = np.concatenate(out['fluorescence'][image][0:nTrials], axis=1)
+
 f_mean = np.nanmean(dff_ns, axis =1)
 f_std = np.nanmean(dff_ns, axis=1)
 for i in range(0, len(f_mean)):
