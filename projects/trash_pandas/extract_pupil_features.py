@@ -155,3 +155,36 @@ def extract_smooth_pupil_rate(dataset,sigma = 4):
     pupil_diameter_rate = insert_nans(diff_diameter,idx_nonans)
     
     return pupil_area_rate, pupil_diameter_rate
+
+def extract_smooth_pupil(dataset,sigma = 4):
+    '''Smooth pupil size trace.
+    
+    Parameters
+    ----------
+    dataset : NWB
+    sigma : int
+        smoothing parameter for gaussian filter function
+    
+    Returns
+    -------
+    pupil_area_smooth : 
+        smoothed pupil area with NaNs reinserted
+    pupil_diameter_smooth : 
+        smoothed pupil diameter with NaNs reinserted '''
+    
+    timestamps, pupil_area = dataset.get_pupil_size()
+    
+    pupil_diameter = convert_pupil_area_to_diameter(pupil_area)
+        
+    area_nonans, idx_nonans = remove_nans(pupil_area)
+    diameter_nonans, idx_nonans = remove_nans(pupil_diameter)
+    
+    #Smooth trace
+    filt_area = gaussian_filter(area_nonans,sigma)
+    filt_diameter = gaussian_filter(diameter_nonans,sigma)
+    
+    #Re-insert NaNs to smoothed rate trace    
+    pupil_area_smooth = insert_nans(filt_area,idx_nonans)
+    pupil_diameter_smooth = insert_nans(filt_diameter,idx_nonans)
+    
+    return pupil_area_smooth, pupil_diameter_smooth
