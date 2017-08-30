@@ -82,8 +82,8 @@ def shuffle_intervals(spkts,T,dt,binsize):
 
     num_cells = spkts.shape[0]
     time = np.arange(T[0],T[1],dt)
-    time_resamp = np.arange(T[0],T[1],binsize)
-    ctrlspksbinned = np.zeros((num_cells,time_resamp.shape[0]))
+    ctrlspksbinar = np.zeros((num_cells,time.shape[0]))
+    time_resamp = np.arange(T[0],T[1],binsize)+binsize/2   
 
     for cellID in range(num_cells): 
         Train = spkts[cellID,:]  # onset times in seconds
@@ -98,10 +98,10 @@ def shuffle_intervals(spkts,T,dt,binsize):
             np.random.shuffle(ind)            # randomly shuffle indices of intervals in train
             rand =  np.random.random((1,))
             rndStrt = T[0] + np.ceil(rand * ntime_free / dt) * dt    #randomly chosen start time, quantised to original spike-time resolution
-            rndStrt = rndStrt.reshape(1,1)
+            rndStrt = rndStrt.reshape(1,1)                  
             shufTs = np.hstack([rndStrt, rndStrt+np.cumsum(IEI[:,ind])]) # starting from randomly chosen start time, the times of new events in shuffled train 1,
             if np.max(shufTs) > T[1]:
-                print 'last event in shuffled train occurs too late'  # paranoia - should rarely happen, except with pathological cases (too few spikes)
+       #         print 'last event in shuffled train occurs too late'  # paranoia - should rarely happen, except with pathological cases (too few spikes)
                 nattempts += 1
                 if nattempts > 20:
                     print 'Cannot satisfactorily shuffle this spike-train'
@@ -110,11 +110,17 @@ def shuffle_intervals(spkts,T,dt,binsize):
                 break
   
         # binarize
-        idx = find_closest(time_resamp[:],shufTs[0,:])
-        ctrlspksbinned[cellID,idx] = 1  # add event indices, add to shuffled onset times vector
+        idx = find_closest(time[:],shufTs[0,:])
+        ctrlspksbinar[cellID,idx] = 1  # add event indices, add to shuffled onset times vector
     
-    ctrlhist = np.sum(ctrlspksbinned,axis=0)
-    return time_resamp, ctrlhist
+    ctrlhist = np.sum(ctrlspksbinar,axis=0)   # number of spikes for each time point for shuffled data
+    
+    # bin total spikes 
+    ctrlhist_binned = ctrlhist.reshape(time_resamp.shape[0],time.shape[0]/time_resamp.shape[0])
+    ctrlhist_binned = np.sum(ctrlhist_binned,axis=1)
+
+    return time_resamp, ctrlhist_binned
+          
 
 
 def find_high_activity(spktms, nsurr=1000, pval = 0.05, dt=1./30, binsize=0.250, T=[0,3550]):
@@ -158,21 +164,26 @@ def find_high_activity(spktms, nsurr=1000, pval = 0.05, dt=1./30, binsize=0.250,
         
     '''
     cutoff = nsurr*(1-pval)
-    time, spktms_bin = binarize_spktms(spktms,T,dt)  
-       
+    
+    # binarize original data set
+    time, spktms_bin = binarize_spktms(spktms,T,dt)        
     coactive = spktms_bin.sum(axis=0)
-    surpasses_surr = np.zeros(coactive.shape)
-    coactive_surr_tot = np.zeros(coactive.shape)
+           
+    # bin original data set
+    time_resamp = np.arange(T[0],T[1],binsize)+binsize/2  
+    coactive_binned = coactive.reshape(time_resamp.shape[0],time.shape[0]/time_resamp.shape[0])
+    coactive_binned = np.sum(coactive_binned,axis=1)
+    surpasses_surr = np.zeros(coactive_binned.shape)
        
+    # for every surrogate data set 
     for _ in range(nsurr):
-        time_resamp, coactive_surr = shuffle_intervals(spktms,T,dt,dt)
-        coactive_surr_tot += coactive_surr
-        surpasses_surr += np.array(coactive>coactive_surr,dtype=int)
-    
-    coactive_surr_tot = coactive_surr_tot/nsurr
-    
+        # shuffle and bin network activity 
+        time_resamp, coactive_surr_binned = shuffle_intervals(spktms,T,dt,binsize) 
+        #compare surrogate with original data and count where exceeds
+        surpasses_surr += np.array(coactive_binned>coactive_surr_binned,dtype=int)
+       
     ensembles = np.array(surpasses_surr > cutoff, dtype=int)
-    return ensembles, time
+    return time_resamp, ensembles 
 
 
 
