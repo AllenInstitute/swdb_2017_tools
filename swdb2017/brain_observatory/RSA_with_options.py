@@ -116,7 +116,7 @@ def get_representational_similarity_response(response, corr='pearson',  embeddin
     Options
     -------
     
-    corr = 'spearman' or 'pearson' or 'mahalanobis'. Type of correlation to use.
+    corr = 'spearman' or 'pearson' or 'mahalanobis'. Type of correlation or distance metric to use.
     mean_sweep = True/False. Whether to use the mean sweep or, if false, the entire sweep
     which_trials =       How to handle multiple showings of the same image. Options:
                     'mean' : use trial-average mean response
