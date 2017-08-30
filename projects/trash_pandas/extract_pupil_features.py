@@ -209,6 +209,6 @@ def is_saccade(saccade_rate,threshold):
     #saccade_nonans, idx_nonans = remove_nans(saccade_rate)
     is_saccade = np.zeros(saccade_rate.shape)
     is_saccade[abs(saccade_rate) > threshold] = 1
-    is_saccade[saccade_rate ==  np.nan] = np.nan
+    is_saccade[list(np.where(np.isnan(saccade_rate)))] = np.nan
     
     return is_saccade
