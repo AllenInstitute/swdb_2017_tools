@@ -161,7 +161,7 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
 
     return output, cell_ids
 
-def get_ns_specific_fluorescence_traces(exp, raw), binned = False:
+def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
 
     '''
     Arguments:
