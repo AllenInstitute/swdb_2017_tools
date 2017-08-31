@@ -149,11 +149,11 @@ def find_high_activity(spktms, nsurr=1000, pval = 0.05, dt=1./30, binsize=0.250,
             
     Returns
     ---------
-        ensembles: numpy array
-            1D array giving the binarized periods of "high activity", as compared with surrogate
+        ensembles_w_cells: numpy array
+            2D array [cells, ensembles] giving the binarized periods of "high activity", as compared with surrogate
         
-        time: numpy array
-            1D array of you time based on T, dt, in seconds
+        time_w_ensembles: numpy array
+            1D array of the time ensembles occur
  
     Notes
     --------- 
@@ -182,8 +182,9 @@ def find_high_activity(spktms, nsurr=1000, pval = 0.05, dt=1./30, binsize=0.250,
     spktms_binned = np.zeros([spktms.shape[0],coactive_binned.shape[0]])
     for i in range(spktms_binned.shape[0]):
         spktms_binned[i] = make_bin(spktms_binar[i,:], time, time_resamp)
-        
-       
+    
+    is_spk_binned =  np.array(spktms_binned>0,dtype=int)
+           
     # for every surrogate data set 
     for _ in range(nsurr):
         # shuffle and bin network activity 
@@ -192,7 +193,9 @@ def find_high_activity(spktms, nsurr=1000, pval = 0.05, dt=1./30, binsize=0.250,
         surpasses_surr += np.array(coactive_binned>coactive_surr_binned,dtype=int)
        
     ensembles = np.array(surpasses_surr > cutoff, dtype=int)
-    return time_resamp, ensembles
+    ensembles_w_cells = is_spk_binned[:,ensembles==1]
+    time_w_ensembles = time_resamp[ensembles==1]
+    return time_w_ensembles, ensembles_w_cells
 
 
 def make_bin(x, t, t_new):
