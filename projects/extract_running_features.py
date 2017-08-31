@@ -1,7 +1,3 @@
-"""
-@author: fionag
-"""
-
 # Imports
 import numpy as np
 import pandas as pd
@@ -67,8 +63,8 @@ def extract_running_rate(data, period=6):
 
     Returns
     -------
-    rate : array
-    contains rate'''
+    running_rate : array
+        contains running rate values'''
 
     running_rate = pd.DataFrame(data).diff(periods=period)
     running_rate = running_rate.values.squeeze()
@@ -98,7 +94,7 @@ def extract_smooth_running_rate(dataset, sigma=4):
     # Smooth trace
     filt_speed = gaussian_filter(speed_nonans, sigma)
     # Extract rate from smoothed trace
-    diff_speed = extract_running_rate(filt_area, period = 6)
+    diff_speed = extract_running_rate(filt_speed, period = 6)
 
     # Re-insert NaNs to smoothed rate trace
     smooth_running_rate = insert_nans(diff_speed, idx_nonans)
