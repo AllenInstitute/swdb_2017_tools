@@ -36,7 +36,7 @@ import load_by_stim as lbs
 import plotting as c_plt
 from matplotlib.collections import LineCollection
 import scipy.ndimage.filters as filt
-from pearson_corr_coeff import pearson_corr_coeff
+from swdb2017.brain_observatory.behavior.correlation_matrix import pearson_corr_coeff
 import extract_pupil_features as epf
 import extract_running_features as err
 

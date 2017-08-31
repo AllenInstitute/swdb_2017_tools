@@ -20,6 +20,7 @@ def get_pupil_mean_sweep_response(data_set, analysis_file, stim_type):
     Returns:
     --------------------------------------------------------------------------
     msr: data frame of mean sweep responses with a column added containing mean pupil size
+    threshold: mean pupil size over total experiment
     header: str, column name for the pupil mean
     '''
 
@@ -43,4 +44,4 @@ def get_pupil_mean_sweep_response(data_set, analysis_file, stim_type):
     header = 'pupil'
     msr[header] = pm
 
-    return msr, header
+    return msr, threshold, header
