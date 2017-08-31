@@ -222,5 +222,24 @@ def find_closest(A, target):
     right = A[idx]
     idx -= target - left < right - target
     return idx
+
+
+def get_ensemble_info(info,recording_type_str):
+
+    i = 0
+    maxspks = 0
+    cellID = np.empty(len(info[1][recording_type_str].keys()))
+    time = info[0] 
+    
+    for key, value in info[1][recording_type_str].iteritems():
+        maxspks = np.maximum(maxspks,len(value))
+
+    spktms=np.empty([cellID.shape[0],maxspks])
+    spktms[:] = np.nan
+    
+    for key, value in info[1][recording_type_str].iteritems():
+        cellID[i] = key
+        spktms[i,:len(value)] = value
+        i += 1
     
 
