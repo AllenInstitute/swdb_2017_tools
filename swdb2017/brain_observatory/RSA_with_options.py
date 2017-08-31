@@ -1,11 +1,14 @@
 import numpy as np
 import pandas as pd
+import scipy.stats as st
+from sklearn.decomposition import PCA
+from sklearn.manifold import SpectralEmbedding, MDS
+from scipy.spatial.distance import squareform, pdist
 
-def get_representational_similarity_expanded(ns, corr='spearman', mean_sweep = True, which_trials = 'mean'):
-    """Returns the Representational Similarity Matrix for this session of natural scene response.
-    Allows the RSA to be computed with correlations either the mean sweep or the full sweep,
-    and with a choice of correlating the trial average mean, a per-neuron random trial, or the concatenation of
-    all trials.
+def get_representational_similarity_NS(ns, corr='pearson', mean_sweep = True, which_trials = 'mean',
+                                            embedding = None, n_components = 5, precision = None):
+    """Returns the Representational Similarity Matrix for this session of natural scene reponse.
+    Note: This should really be called the "Response Similarity Matrix" .
     
     Input
     -----
@@ -14,12 +17,15 @@ def get_representational_similarity_expanded(ns, corr='spearman', mean_sweep = T
     Options
     -------
     
-    corr = 'spearman' or 'pearson'. Type of correlation to use
+    corr = 'spearman' or 'pearson'. Type of correlation to use.
     mean_sweep = True/False. Whether to use the mean sweep or, if false, the entire sweep
-    which_trials = How to handle multiple showings of the same image. Options:
+    which_trials =       How to handle multiple showings of the same image. Options:
                     'mean' : use trial-average mean response
                     'random' : use a random trial for each neuron. destroys effects noise correlation in the RSM
                     'all' : string all trials together 
+    embedding = Whether to embed the responses before computing response similarity. Uses sklearn.
+                Options: 'None', 'spectral_embedding', 'pca', 'mds'
+    n_components = int >= 0. Number of components to use when embedding.
     
     """
     
@@ -67,13 +73,16 @@ def get_representational_similarity_expanded(ns, corr='spearman', mean_sweep = T
         if which_trials == 'mean':
             avg_sweeps = get_avg_sweep(ns)
             # now unwrap
-            response = unwrap_sweeps(sweep_df.iloc[:,:-1], ns)
+            response = unwrap_sweeps(avg_sweeps.iloc[:,:-1], ns)
             
         elif which_trials == 'random':
-            avg_sweeps = get_rand_sweep(ns)
+            rand_sweeps = get_rand_sweep(ns)
             # now unwrap
-            response = unwrap_sweeps(sweep_df.iloc[:,:-1], ns)
+            response = unwrap_sweeps(ran_sweeps.iloc[:,:-1], ns)
         elif which_trials == 'all':
+            
+            indexed_mean_sweep_response = pd.merge(ns.stim_table, ns.mean_sweep_response,
+                     how='left', left_index=True, right_index =True)
             # this super-gross operation returns a pd.Series of length number_scenes,
                 # with each value being the concatenated all-trial, all-neuron, all-sweep response
             my_group = indexed_sweep_response.groupby('frame').apply(
@@ -89,28 +98,95 @@ def get_representational_similarity_expanded(ns, corr='spearman', mean_sweep = T
             raise Exception('which_trials should be all, random, or mean.')   
     else:
         raise Exception('mean_sweep must be True or False')
-            
+        
+    rep_sim = get_representational_similarity_response(response, corr=corr, precision = precision,
+                                            embedding = embedding, n_components = n_components)
+
+    return rep_sim
+
+def get_representational_similarity_response(response, corr='pearson',  embedding = None, n_components = 5,precision = None,
+                                                        prefit_embedder = None):
+    """Returns the Representational Similarity Matrix for this response matrix (numpy array).
+    Note: This should really be called the "Response Similarity Matrix" .
+    
+    Input
+    -----
+    ns = NaturalScenes object
+    
+    Options
+    -------
+    
+    corr = 'spearman' or 'pearson' or 'mahalanobis'. Type of correlation or distance metric to use.
+    mean_sweep = True/False. Whether to use the mean sweep or, if false, the entire sweep
+    which_trials =       How to handle multiple showings of the same image. Options:
+                    'mean' : use trial-average mean response
+                    'random' : use a random trial for each neuron. destroys effects noise correlation in the RSM
+                    'all' : string all trials together 
+    embedding = Whether to embed the responses before computing response similarity. Uses sklearn.
+                Options: 'None', 'spectral_embedding', 'pca', 'mds'
+    n_components = int >= 0. Number of components to use when embedding.
+    
+    """
+    
+    
+        
+    if embedding is not None:
+        if prefit_embedder is None:
+            if embedding in ['pca', 'PCA']:
+                embed = PCA(whiten = True, n_components=n_components)
+
+            elif embedding == 'spectral_embedding':
+                embed = SpectralEmbedding(n_components=n_components, n_jobs = -1)
+
+            elif embedding in ['mds', 'MDS']:
+                embed = MDS(n_components=n_components)
+            else:
+                raise Exception('embedding must be None, pca, mds, or spectral_embedding')
+            response = embed.fit_transform(response)
+        else:
+            prefit_embedder.transform(response)
 
 
+    Nstim = response.shape[0]
     rep_sim = np.zeros((Nstim, Nstim))
     rep_sim_p = np.empty((Nstim, Nstim))
     if corr == 'pearson':
-        for i in range(Nstim):
-            for j in range(i, Nstim): # matrix is symmetric
-                rep_sim[i, j], rep_sim_p[i, j] = st.pearsonr(response[i], response[j])
+        rep_sim = np.corrcoef(response)
+        rep_sim = np.triu(rep_sim) + np.triu(rep_sim, 1).T # fill in lower triangle
+
 
     elif corr == 'spearman':
         for i in range(Nstim):
             for j in range(i, Nstim): # matrix is symmetric
-                rep_sim[i, j], rep_sim_p[i, j] = st.spearmanr(response[i], response[j])
+                rep_sim[i, j], _ = st.spearmanr(response[i], response[j])
+        rep_sim = np.triu(rep_sim) + np.triu(rep_sim, 1).T # fill in lower triangle
+        
+        
+    elif corr == 'mahalanobis':
+        if precision is None:
+            #using sklearn for its nice approximate inverse methods
+            if response.shape[0] < response.shape[1]:
+                raise('Must have more stimuli responses than neurons')
 
+            emp_cov = EmpiricalCovariance()
+            emp_cov.fit(response)
+            precision = emp_cov.get_precision()
+            
+        for i in range(Nstim):
+            for j in range(i, Nstim): # matrix is symmetric
+                delta = response[i]-response[j]
+                rep_sim[i, j] = np.dot(np.dot(delta, precision), delta)
+                
+        rep_sim = np.triu(rep_sim) + np.triu(rep_sim, 1).T # fill in lower triangle
+        
     else:
-        raise Exception('correlation should be pearson or spearman')
+        # Assume other sklearn distance metric
+        rep_sim = squareform(pdist(response, metric=corr))
 
-    rep_sim = np.triu(rep_sim) + np.triu(rep_sim, 1).T # fill in lower triangle
-    rep_sim_p = np.triu(rep_sim_p) + np.triu(rep_sim_p, 1).T  # fill in lower triangle
+    # set diagonal to zero for plotting
+    np.fill_diagonal(rep_sim,0)
 
-    return rep_sim, rep_sim_p
+    return rep_sim
 
 
 def get_avg_sweep(ns):
