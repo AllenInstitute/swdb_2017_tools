@@ -328,6 +328,7 @@ def get_is_running(df_smooth, threshold, figure = True):
     df_is_running : pandas dataframe
         copy of original dataframe with an additional column (is_running) with binary values
         denoting running (1) or not running (0)
+    ax: axes handle
     '''
 
     df_is_running = df_smooth.copy()
