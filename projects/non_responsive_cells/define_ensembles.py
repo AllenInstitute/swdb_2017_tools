@@ -229,7 +229,7 @@ def get_ensemble_info(info,recording_type_str):
     i = 0
     maxspks = 0
     cellID = np.empty(len(info[1][recording_type_str].keys()))
-    time = info[0] 
+    time = info[0][recording_type_str]
     
     for key, value in info[1][recording_type_str].iteritems():
         maxspks = np.maximum(maxspks,len(value))
@@ -241,5 +241,7 @@ def get_ensemble_info(info,recording_type_str):
         cellID[i] = key
         spktms[i,:len(value)] = value
         i += 1
+    
+    return time, spktms, cellID
     
 
