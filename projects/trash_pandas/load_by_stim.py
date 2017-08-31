@@ -4,7 +4,7 @@ import extract_pupil_features as epf
 import extract_running_features as erf
 import matplotlib.pyplot as plt
 
-def get_grating_specific_traces(exp, raw, binned=False):
+def get_grating_specific_traces(exp, raw, binned=False, t_win=0):
 
     '''
     Arguments:
@@ -29,7 +29,7 @@ def get_grating_specific_traces(exp, raw, binned=False):
     with row of cell X time matrix contained inside the fluroescence field of the
     output dictionary
     '''
-
+    t_win = int(np.floor(t_win/(1./30.)))
     cell_ids = exp.get_cell_specimen_ids()
     if raw:
         t, dff = exp.get_fluorescence_traces()  # Read in calcium signal
@@ -70,7 +70,7 @@ def get_grating_specific_traces(exp, raw, binned=False):
     if binned:
         for j, us in enumerate(stim_ids):
             start = stim_table['start'][stim_table['id']==us].values
-            end = stim_table['end'][stim_table['id']==us].values
+            end = stim_table['end'][stim_table['id']==us].values + t_win
 
             for i in range(0, len(start)):
                     df[us][i]= np.mean((dff[:,start[i]:end[i]]), axis=1)
@@ -87,7 +87,7 @@ def get_grating_specific_traces(exp, raw, binned=False):
     else:
         for j, us in enumerate(stim_ids):
             start = stim_table['start'][stim_table['id']==us].values
-            end = stim_table['end'][stim_table['id']==us].values
+            end = stim_table['end'][stim_table['id']==us].values + t_win
 
             for i in range(0, len(start)):
                     df[us][i]=(dff[:,start[i]:end[i]])
@@ -114,7 +114,7 @@ def get_grating_specific_traces(exp, raw, binned=False):
 
     return output, cell_ids
 
-def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
+def get_spont_specific_fluorescence_traces(exp, raw, binned=False, t_win=0):
     '''
     Arguments:
     ---------------------------------------------------------------------------
@@ -138,7 +138,8 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
     with row of cell X time matrix contained inside the fluroescence field of the
     output dictionary
     '''
-
+    t_win = int(np.floor(t_win/(1./30.)))
+    print(t_win)
     cell_ids = exp.get_cell_specimen_ids()
     if raw:
         t, dff = exp.get_fluorescence_traces()  # Read in calcium signal
@@ -169,7 +170,7 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
     if binned:
         for i in range(0,len(stim_table['start'].values)):
             start = stim_table['start'][i]
-            end = stim_table['end'][i]
+            end = stim_table['end'][i] + t_win
             dff_temp['spont'].append(np.nanmean(dff[:,start:end],axis=1))
             pr_temp['spont'].append(np.nanmean(pr[start:end]))
             pl_temp['spont'].append(np.nanmean(pl[start:end,:],axis=0))
@@ -184,7 +185,7 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
     else:
         for i in range(0, len(stim_table['start'].values)):
             start = stim_table['start'][i]
-            end = stim_table['end'][i]
+            end = stim_table['end'][i] + t_win
             dff_temp['spont'].append(dff[:,start:end])
             pr_temp['spont'].append(pr[start:end])
             pl_temp['spont'].append(pl[start:end,:])
@@ -212,7 +213,7 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False):
 
     return output, cell_ids
 
-def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
+def get_ns_specific_fluorescence_traces(exp, raw, binned = False, t_win=0):
 
     '''
     Arguments:
@@ -237,7 +238,7 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
     with row of cell X time matrix contained inside the fluroescence field of the
     output dictionary
     '''
-
+    t_win = int(np.floor(t_win/(1./30.)))
     cell_ids = exp.get_cell_specimen_ids()
 
     if raw:
@@ -271,7 +272,7 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
     if binned:
         for i, u_s in enumerate(unique_stim):
             start = stim_table['start'][stim_table['frame']==u_s].values
-            end = start + 7#stim_table['end'][stim_table['frame']==u_s].values
+            end = start + 7 + t_win  #stim_table['end'][stim_table['frame']==u_s].values
             dff_temp[u_s] = []
             pr_temp[u_s] = []
             pl_temp[u_s] = []
@@ -297,7 +298,7 @@ def get_ns_specific_fluorescence_traces(exp, raw, binned = False):
     else:
         for i, u_s in enumerate(unique_stim):
             start = stim_table['start'][stim_table['frame']==u_s].values
-            end = start + 7#stim_table['end'][stim_table['frame']==u_s].values
+            end = start + 7 +t_win      #stim_table['end'][stim_table['frame']==u_s].values
             dff_temp[u_s] = []
             pr_temp[u_s] = []
             pl_temp[u_s] = []

@@ -18,8 +18,7 @@ def pearson_corr_coeff(x, y):
     corr_coef: int
         The pearson correlation coefficient between x and y
     '''
-    x = x.astype(np.float64)
-    y = y.astype(np.float64)
+
     x_inds = np.where(np.isnan(x))[0]
     y_inds = np.where(np.isnan(y))[0]
     nan_inds = np.sort(np.unique(np.concatenate((x_inds, y_inds))))
