@@ -1,6 +1,4 @@
 # Imports
-import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -8,28 +6,30 @@ import seaborn as sns
 from allensdk.core.brain_observatory_cache import BrainObservatoryCache
 from scipy.ndimage.filters import gaussian_filter
 
-# Retrieve brain observatory cache
-manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
+drive_path = '/data/dynamic-brain-workshop/brain_observatory_cache/'
+manifest_file = os.path.join(drive_path, 'brain_observatory_manifest.json')
 boc = BrainObservatoryCache(manifest_file=manifest_file)
 
 # Behavior Data Functions
 def get_filtered_df(boc, targeted_structures=None, stims=None, cre_lines=None):
-    """Returns dataframe filtered by stimulus inputs and targeted structure inputs from Brain Observatory data.
-    Parameters
+    """
+    Returns pandas dataframe filtered by stimulus inputs and targeted structure inputs from Brain Observatory data.
+
+    Parameters:
     ----------
-    boc : BrainObservatoryCache from allensdk
-    //from allensdk.core.brain_observatory_cache import BrainObservatoryCache
-    //manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
-    //boc = BrainObservatoryCache(manifest_file=manifest_file)
-
+    boc : BrainObservatoryCache instance
     targeted_structures : list
-                        brain region acronyms, strings (optional)
-    stims : list of stimulus class names, strings (optional)
-    cre_lines : list of cre line names, strings (optional)
+        brain region acronyms, strings (optional)
+    stims : list
+        list of stimulus class names, strings (optional)
+    cre_lines : list
+        list of cre line names, strings (optional)
 
-    Returns
+    Returns:
     -------
-    filtered_df : dataframe containing experiments only with stim or targeted_structures inputs"""
+    filtered_df : pandas dataframe
+        contains experiments only with stim or targeted_structures inputs
+    """
 
     if targeted_structures is None:
         targeted_structures = boc.get_all_targeted_structures()
@@ -51,17 +51,23 @@ def get_running_speed_from_expt_session_id(boc, expt_session_id, remove_outliers
     """
     """
     Get running speed trace for a single experiment session.
-    Parameters
-    ----------
-    boc : Brain Observatory Cache instance
-    expt_session_id : ophys experiment session ID
-    remove_outliers : Boolean. If True, replace running trace outlier values (>100, -10) with NaNs
     
-    Returns
+    Parameters:
+    ----------
+    boc : BrainObservatoryCache instance
+    expt_session_id : int 
+        ophys experiment session ID
+    remove_outliers : boolean
+        if True, replace running trace outlier values (>100, -10) with NaNs
+    
+    Returns:
     -------
-    running_speed : values of mouse running speed in centimeters per second. Can include NaNs
-    timestamps : timestamps corresponding to running speed values
+    running_speed : array
+        numpy.array of mouse running speed in centimeters per second. Can include NaNs
+    timestamps : array
+        numpy.array of timestamps corresponding to running speed values
     """
+
     dataset = boc.get_ophys_experiment_data(ophys_experiment_id=expt_session_id)
     running_speed, timestamps = dataset.get_running_speed()
     if remove_outliers:
@@ -69,17 +75,21 @@ def get_running_speed_from_expt_session_id(boc, expt_session_id, remove_outliers
     return running_speed, timestamps
 
 def remove_running_speed_outliers(running_speed):
-    """Replaces outlier points in running speed traces (values >100 & < -20) with NaNs.
-        Outlier values likely result from running wheel encoder glitches.
-
-    Parameters
-    ----------
-    running_speed : running speed trace
-
-    Returns
-    -------
-    run_speed : running speed trace with outlier values replaced with NaNs
     """
+    Replaces outlier points in running speed traces (values >100 & < -20) with NaNs.
+    Outlier values likely result from running wheel encoder glitches.
+
+    Parameters:
+    ----------
+    running_speed : array
+        running speed trace
+
+    Returns:
+    -------
+    run_speed : array
+        numpy array running speed trace with outlier values replaced with NaNs
+    """
+
     run_speed = running_speed.copy()
     run_speed[run_speed > 100] = np.nan
     run_speed[run_speed < -20] = np.nan
@@ -87,22 +97,26 @@ def remove_running_speed_outliers(running_speed):
 
 
 def get_behavior_df(boc, df):
-    """Returns dataframe containing behavior data from Allen Brain Observatory.
-    Parameters
+    """
+    Returns pandas dataframe containing behavior data from Allen Brain Observatory.
+
+    Parameters:
     ---------
-    boc : BrainObservatoryCache from allensdk
-    //from allensdk.core.brain_observatory_cache import BrainObservatoryCache
-    //manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
-    //boc = BrainObservatoryCache(manifest_file=manifest_file)
+    boc : BrainObservatoryCache instance
+    df : pandas dataframe
+        contains experiment ids for desired behavioral data output
 
-    df : dataframe containing experiment ids for desired behavioral data output
-
-    Returns
+    Returns:
     -------
-    behavior_df : dataframe containing:
-    id : unique experiment session id (int)
-    speed_cm_s : running speed values in cm/s; can include NaNs (list)
-    time_stamps : time stamps corresponding to running speed values (list)"""
+    behavior_df : pandas dataframe
+        contains below
+    id : int
+        unique experiment session id
+    speed_cm_s :  list
+        running speed values in cm/s; can include NaNs
+    time_stamps : list
+        time stamps corresponding to running speed values
+    """
 
     expt_session_ids = df.id.values
 
@@ -117,17 +131,15 @@ def get_behavior_df(boc, df):
 
 
 def plot_running_speed(boc, behavior_df):
-    """Plot all unprocessed running speed traces for a set of ophys experiments within a
-        pandas data frame containing behavior data
-    -------
+    """
+    Plot all unprocessed running speed traces for a set of ophys experiments within a
+    pandas dataframe containing behavior data
+
     Parameters
     ----------
-    boc : BrainObservatoryCache from allensdk
-    //from allensdk.core.brain_observatory_cache import BrainObservatoryCache
-    //manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
-    //boc = BrainObservatoryCache(manifest_file=manifest_file)
-
-    behavior_df : dataframe containing id (int), speed_cm_s (list), and time_stamps (list)
+    boc : BrainObservatoryCache instance
+    behavior_df : pandas dataframe
+        contains id (int), speed_cm_s (list), and time_stamps (list)
 
     Returns
     -------
@@ -148,17 +160,22 @@ def plot_running_speed(boc, behavior_df):
 
 
 def remove_nans(df, keys):
-    '''Remove NaN values from specified key columns and also same indices from time_stamps. Will remove the same set of
+    '''
+    Remove NaN values from specified key columns and also same indices from time_stamps. Will remove the same set of
     indices for all columns based on first key in keys list.
 
     Parameters
     ----------
-    df : dataframe containing data and time_stamps column
-    keys : list of keys from which you want NaNs removed (NOT including time_stamps, this is automatic)
+    df : pandas dataframe
+        containing data and time_stamps column
+    keys : list
+        keys from which you want NaNs removed (NOT including time_stamps, this is automatic)
 
     Returns
     -------
-    df_nonans : dataframe same as original df with NaNs removed and corresponding time_stamp indices removed'''
+    df_nonans : pandas dataframe
+        same as original df with NaNs removed and corresponding time_stamp indices removed
+    '''
 
     df_nonans = pupil_df.copy()
     keys.append('time_stamps')
@@ -172,17 +189,22 @@ def remove_nans(df, keys):
 
 
 def smooth_data(df_nonans, keys, sigma):
-    '''Gaussian smooth data in desired columns specified by keys
+    '''
+    Gaussian smooth data in desired columns specified by keys
 
     Parameters
     ----------
-    df : dataframe containing data
-    keys : list of strings of columns containing data to be smoothed
-    sigma : int, sigma value to input to gaussian filter
+    df : pandas dataframe
+        contains data without Nans
+    keys : list
+        list of strings withcolumns containing data to be smoothed
+    sigma : int
+        sigma value to input to gaussian filter
 
     Returns
     -------
-    df_smooth : dataframe with original data plus additional columns containing smoothed data
+    df_smooth : pandas dataframe
+        original data plus additional columns containing smoothed data
     '''
 
     new_keys = []
@@ -207,17 +229,22 @@ def smooth_data(df_nonans, keys, sigma):
 
 
 def plot_smoothed_trace(df_smooth, keys):
-    '''Use a gaussian filter to smooth values from specified key column and plot on top of un-smoothed values.
+    '''
+    Use a gaussian filter to smooth values from specified key column and plot on top of un-smoothed values.
 
     Parameters
     ----------
-    df_smooth : dataframe containing data and time_stamps column without any NaN values.
-    keys : list with column name (str) from data frame that contains the values that you want to smooth
-            (NOT including time_stamps)
+    df_smooth : pandas dataframe
+        contains data and time_stamps column without any NaN values.
+    keys : list
+        with column name (str) from data frame that contains the values that you want to smooth
+        (NOT including time_stamps)
 
     Returns
     -------
-    ax: axes handle, plot of smoothed trace with original trace'''
+    ax: axes handle
+        plot of smoothed trace with original trace
+    '''
 
     # Plot figures
     for i, row in tqdm_notebook(df_smooth.iterrows()):
@@ -235,24 +262,28 @@ def plot_smoothed_trace(df_smooth, keys):
 
 # Main behavior data function with plots
 def get_processed_behavior_data(boc, targeted_structures=None, stims=None, cre_lines=None, sigma = None):
-    '''Use a set of filtering criteria to get behavior data and gaussian smoothed traces.
+    '''
+    Use a set of filtering criteria to get behavior data and gaussian smoothed traces.
 
     Parameters
     ----------
-    boc : BrainObservatoryCache from allensdk
-    //from allensdk.core.brain_observatory_cache import BrainObservatoryCache
-    //manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
-    //boc = BrainObservatoryCache(manifest_file=manifest_file)
-
-    targeted_structures : list of brain region acronyms, strings (optional)
-    stims : list of stimulus class names, strings (optional)
-    cre_lines : list of cre line names, strings (optional)
-    sigma : sigma value to use for gaussian smoothing
+    boc : BrainObservatoryCache instance
+    targeted_structures : list
+        brain region acronyms, strings (optional)
+    stims : list
+        stimulus class names, strings (optional)
+    cre_lines : list
+        cre line names, strings (optional)
+    sigma : int
+        sigma value to use for gaussian smoothing
 
     Returns
     -------
-    df_smooth : pandas dataframe with both smoothed and un-smoothed data (nan indices dropped)
-    ax : axes handle, plot of smoothed trace with original trace'''
+    df_smooth : pandas dataframe
+        both smoothed and un-smoothed data (nan indices dropped)
+    ax : axes handle
+        plot of smoothed trace with original trace
+    '''
 
     filtered_df = get_filtered_df(boc, targeted_structures=targeted_structures, stims=stims, cre_lines=cre_lines)
     behavior_df = get_behavior_df(boc, filtered_df)
@@ -264,17 +295,23 @@ def get_processed_behavior_data(boc, targeted_structures=None, stims=None, cre_l
 
 
 def plot_smoothed_running_distributions(df_smooth, key, bins):
-    '''Plot distribution running speed values that are gaussian filtered.
+    '''
+    Plot distribution running speed values that are gaussian filtered.
 
     Parameters
     ----------
-    df_smooth : dataframe containing data and time_stamps column without any NaN values.
-    key : list of column name (str) to ploy distribution of
-    bins : number of bins to parse the distribution by
+    df_smooth : pandas dataframe
+        contains data and time_stamps column without any NaN values.
+    key : list
+        column names (str) to plot distributions
+    bins : int
+        number of bins to parse the distribution by
 
     Returns
     -------
-    ax: axes handle, plot of smoothed trace with original trace'''
+    ax: axes handle
+        plot of smoothed trace with original trace
+    '''
 
     for i, row in df_smooth.iterrows():
         fig, ax = plt.subplots()
@@ -288,17 +325,22 @@ def plot_smoothed_running_distributions(df_smooth, key, bins):
 
 
 def get_is_running(df_smooth, threshold):
-    '''Assign a binary value to running (1) or not running (0) based on an input threshold
+    '''
+    Assign a binary value to running (1) or not running (0) based on an input threshold
 
     Parameters
     ----------
-    df_smooth : dataframe containing data and time_stamps column without any NaN values.
-    threshold : speed (cm/s) that you will define running state
+    df_smooth : pandas dataframe
+        contains data and time_stamps column without any NaN values.
+    threshold : int
+        speed (cm/s) that you will define running state
 
     Returns
     -------
-    df_is_running : copy of original dataframe with an addition column (is_running) with binary values
-                    denoting running (1) or not running (0)'''
+    df_is_running : pandas dataframe
+        copy of original dataframe with an additional column (is_running) with binary values
+        denoting running (1) or not running (0)
+    '''
 
     df_is_running = df_smooth.copy()
     is_running = []
@@ -315,7 +357,22 @@ def get_is_running(df_smooth, threshold):
     return df_is_running
 
 
-def get_fluor_running_traces(boc, exp):
+def plot_fluor_running_traces(boc, exp):
+    '''
+    Plot calcium fluorescence trace plotted with running speed values that are gaussian filtered.
+
+    Parameters
+    ----------
+    boc: BrainObservatoryCache instance
+    exp : int
+        ophys experiment session id
+
+    Returns
+    -------
+    ax: axes handle
+        plot of smoothed trace with original trace
+    '''
+
     # Get traces
     exp_data = boc.get_ophys_experiment_data(exp)
     fluor_ts, fluor_trace = exp_data.get_dff_traces()
@@ -336,9 +393,5 @@ def get_fluor_running_traces(boc, exp):
     plt.ylabel('DF/F')
     plt.ylim(-10, 100)
     sns.despine()
-
-def get_fluor_running_traces_from_df(boc, df):
-    for i in df['id']:
-        get_fluor_running_traces(boc, i)
 
 
