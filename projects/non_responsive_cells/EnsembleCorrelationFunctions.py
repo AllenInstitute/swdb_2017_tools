@@ -1,4 +1,4 @@
-"""
+'''
 EnsembleCorrelationFunctions.py
 
 A small part of the Non Visually Responsive Cell Project
@@ -27,7 +27,7 @@ frames in each comparison (shuffling across cells).
 estimated as the correlation coefficient that exceeded only 5% of 
 correlation coefficients between these surrogate ensembles 
 (using np.percentile)
-"""
+'''
 
 # AWS
 # drive_path = '/data/dynamic-brain-workshop/brain_observatory_cache/'
@@ -43,7 +43,7 @@ import matplotlib.pyplot as plt
 
 ## Generate Threshold for Each Ensemble Comparison
 # for a single comparison, generate surrogate by shuffling
-def generate_threshold_surrogate(ens_a,ens_b,permute_num):
+def generate_threshold_surrogate(ens_a,ens_b,permute_num,percent):
 
     surr_corr = np.zeros(permute_num)
 
@@ -52,14 +52,14 @@ def generate_threshold_surrogate(ens_a,ens_b,permute_num):
         r = np.corrcoef(ens_a,tmp_perm)[0,1] # Pearson Correlation
         surr_corr[k] = 0.5*np.log((1+r)/(1-r)) # Fisher z transform
     
-    thresh_final = np.percentile(surr_corr,95) # percentile function
+    thresh_final = np.percentile(surr_corr,percent) # percentile function
             
     return thresh_final # return bound for Fisher z transform
 
 
 
 
-def correlations_between_ensembles(ensemble_array,surr_num,verbose=False):
+def correlations_between_ensembles(ensemble_array,surr_num,percentile,verbose=False):
     
     '''
     THIS FUNCTION LOOKS FOR CORRELATIONS WITHIN A SET OF ENSEMBLES
@@ -145,7 +145,7 @@ def correlations_between_ensembles(ensemble_array,surr_num,verbose=False):
     
     ## Now Bootstrap with surrogate datasets!
     # Generate threshold for each comparison and store
-    F_lower_thresh = [generate_threshold_surrogate(ensemble_array[:,i],ensemble_array[:,j],surr_num) for i,j in zip(xv,yv)]
+    F_lower_thresh = [generate_threshold_surrogate(ensemble_array[:,i],ensemble_array[:,j],surr_num,percentile) for i,j in zip(xv,yv)]
     
     elapsed = timeit.default_timer() - start_time
     print('Elapsed surrogate time (s): ', elapsed)
@@ -210,7 +210,7 @@ def correlations_between_ensembles(ensemble_array,surr_num,verbose=False):
 
     
     
-def correlations_between_ensemble_sets(ensemble_array1,ensemble_array2,surr_num,verbose=False):
+def correlations_between_ensemble_sets(ensemble_array1,ensemble_array2,surr_num,percentile,verbose=False):
     
     '''
     THIS FUNCTION LOOKS FOR CORRELATIONS BETWEEN TWO SETS OF ENSEMBLES
@@ -313,7 +313,7 @@ def correlations_between_ensemble_sets(ensemble_array1,ensemble_array2,surr_num,
     
     ## Now Bootstrap with surrogate datasets!
     # Generate threshold for each comparison and store
-    F_lower_thresh = [generate_threshold_surrogate(ensemble_array1[:,i],ensemble_array2[:,j],surr_num) for i,j in zip(xv,yv)]
+    F_lower_thresh = [generate_threshold_surrogate(ensemble_array1[:,i],ensemble_array2[:,j],surr_num,percentile) for i,j in zip(xv,yv)]
     
     elapsed = timeit.default_timer() - start_time
     print('Elapsed surrogate time (s): ', elapsed)
