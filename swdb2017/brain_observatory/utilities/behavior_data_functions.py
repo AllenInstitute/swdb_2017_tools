@@ -3,12 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from allensdk.core.brain_observatory_cache import BrainObservatoryCache
 from scipy.ndimage.filters import gaussian_filter
-
-drive_path = '/data/dynamic-brain-workshop/brain_observatory_cache/'
-manifest_file = os.path.join(drive_path, 'brain_observatory_manifest.json')
-boc = BrainObservatoryCache(manifest_file=manifest_file)
 
 # Behavior Data Functions
 def get_filtered_df(boc, targeted_structures=None, stims=None, cre_lines=None):
@@ -158,35 +153,26 @@ def plot_running_speed(boc, behavior_df):
         plt.xlabel('Time (s)')
         plt.ylabel('Running Speed (cm/s)')
 
-
-def remove_nans(df, keys):
-    '''
-    Remove NaN values from specified key columns and also same indices from time_stamps. Will remove the same set of
-    indices for all columns based on first key in keys list.
+def remove_nans(data):
+    ''' Remove NaNs from data.
 
     Parameters
     ----------
-    df : pandas dataframe
-        containing data and time_stamps column
-    keys : list
-        keys from which you want NaNs removed (NOT including time_stamps, this is automatic)
+    data : array
 
     Returns
     -------
-    df_nonans : pandas dataframe
-        same as original df with NaNs removed and corresponding time_stamp indices removed
-    '''
-
-    df_nonans = pupil_df.copy()
-    keys.append('time_stamps')
+    data_nonans : array
+        original data with no NaNs
+    idx_nonans : array
+        boolean containing True where original trace had no NaNs and False where original trace had NaNs'''
 
     # Keep only indices with non-nan data points
-    for j in range(len(df_nonans[keys[0]])):
-        idx_nonans = ~np.isnan(df_nonans[keys[0]][j])
-        for key in keys:
-            df_nonans[key][j] = df_nonans[key][j][idx_nonans]
-    return df_nonans
+    idx_nonans = ~np.isnan(data)
+    temp = data
+    data_nonans = temp[idx_nonans]
 
+    return data_nonans, idx_nonans
 
 def smooth_data(df_nonans, keys, sigma):
     '''
@@ -197,7 +183,7 @@ def smooth_data(df_nonans, keys, sigma):
     df : pandas dataframe
         contains data without Nans
     keys : list
-        list of strings withcolumns containing data to be smoothed
+        list of strings with columns containing data to be smoothed
     sigma : int
         sigma value to input to gaussian filter
 
@@ -247,7 +233,7 @@ def plot_smoothed_trace(df_smooth, keys):
     '''
 
     # Plot figures
-    for i, row in tqdm_notebook(df_smooth.iterrows()):
+    for i, row in df_smooth.iterrows():
         fig, ax = plt.subplots()
         ax.plot(row['time_stamps'], row[keys[0]])
         ax.plot(row['time_stamps'], row[keys[1]])
@@ -317,14 +303,14 @@ def plot_smoothed_running_distributions(df_smooth, key, bins):
         fig, ax = plt.subplots()
         ax.hist(row[key[0]], bins=bins)
 
-        plt.xlabel(keys[0])
+        plt.xlabel(key[0])
         plt.ylabel('count')
         plt.title('Experiment ID: ' + str(row['id']))
         sns.despine()
         sns.set_style('ticks')
 
 
-def get_is_running(df_smooth, threshold):
+def get_is_running(df_smooth, threshold, figure = True):
     '''
     Assign a binary value to running (1) or not running (0) based on an input threshold
 
@@ -334,6 +320,8 @@ def get_is_running(df_smooth, threshold):
         contains data and time_stamps column without any NaN values.
     threshold : int
         speed (cm/s) that you will define running state
+    figure : boolean
+        if True, return plots of is_running data against time
 
     Returns
     -------
@@ -349,10 +337,10 @@ def get_is_running(df_smooth, threshold):
 
     df_is_running['is_running'] = is_running
 
-    keys = ['is_running', 'time_stamps']
-    for i, row in tqdm_notebook(df_is_running.iterrows()):
-        fig, ax = plt.subplots()
-        ax.plot(row['time_stamps'], row['is_running'])
+    if figure is True:
+        for i, row in df_is_running.iterrows():
+            fig, ax = plt.subplots()
+            ax.plot(row['time_stamps'], row['is_running'])
 
     return df_is_running
 

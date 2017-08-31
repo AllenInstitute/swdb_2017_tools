@@ -3,9 +3,8 @@
 """
 
 # Imports
-import os
 import numpy as np
-import
+import pandas as pd
 from scipy.ndimage.filters import gaussian_filter
 
 # Necessary functions
@@ -25,13 +24,13 @@ def remove_nans(data):
 
     # Keep only indices with non-nan data points
     idx_nonans = ~np.isnan(data)
-    temp = data.copy()
+    temp = data
     data_nonans = temp[idx_nonans]
 
     return data_nonans, idx_nonans
 
 
-def insert_nans(data, idx_nonans):
+def insert_nans(data,idx_nonans):
     '''Reinsert NaNs.
 
     Parameters
@@ -50,10 +49,12 @@ def insert_nans(data, idx_nonans):
 
     new_data = np.empty(idx_nonans.shape)
     new_data[:] = np.nan
+    new_data[idx_nonans] = data
+
     return new_data
 
 
-def extract_rate(data, period=6):
+def extract_running_rate(data, period=6):
     '''Will extract rate of change in input data.
 
     Parameters
@@ -69,10 +70,10 @@ def extract_rate(data, period=6):
     rate : array
     contains rate'''
 
-    rate = pd.DataFrame(data).diff(periods=period)
-    rate = rate.values.squeeze()
+    running_rate = pd.DataFrame(data).diff(periods=period)
+    running_rate = running_rate.values.squeeze()
 
-    return rate
+    return running_rate
 
 
 def extract_smooth_running_rate(dataset, sigma=4):
@@ -86,24 +87,23 @@ def extract_smooth_running_rate(dataset, sigma=4):
 
     Returns
     -------
-    running_rate :
+    smooth_running_rate :
         smoothed pupil area rate with NaNs reinserted
-    pupil_diameter_rate :
-        smoothed pupil diameter rate with NaNs reinserted '''
+    '''
 
-    timestamps, running_speed = dataset.get_running_speed()
+    running_speed, timestamps = dataset.get_running_speed()
 
     speed_nonans, idx_nonans = remove_nans(running_speed)
 
     # Smooth trace
     filt_speed = gaussian_filter(speed_nonans, sigma)
     # Extract rate from smoothed trace
-    diff_speed = extract_rate(filt_area, period=10)
+    diff_speed = extract_running_rate(filt_area, period = 6)
 
     # Re-insert NaNs to smoothed rate trace
-    speed_rate = instert_nans(diff_speed, idx_nonans)
+    smooth_running_rate = insert_nans(diff_speed, idx_nonans)
 
-    return speed_rate
+    return smooth_running_rate
 
 
 
