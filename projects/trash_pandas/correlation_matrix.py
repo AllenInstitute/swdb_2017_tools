@@ -19,14 +19,16 @@ def pearson_corr_coeff(x, y):
     corr_coef: int
         The pearson correlation coefficient between x and y
     '''
-
+    x = x.astype(np.float64)
+    y = y.astype(np.float64)
     x_inds = np.where(np.isnan(x))[0]
     y_inds = np.where(np.isnan(y))[0]
     nan_inds = np.sort(np.unique(np.concatenate((x_inds, y_inds))))
-    x = np.delete(x, nan_inds)
-    y = np.delete(y, nan_inds)
 
-    corr_mat = np.corrcoef(x, y)
+    x_no_nan = np.delete(x, nan_inds)
+    y_no_nan = np.delete(y, nan_inds)
+
+    corr_mat = np.corrcoef(x_no_nan, y_no_nan)
     corr_coef = corr_mat[1, 0]
 
     return corr_coef
@@ -73,7 +75,7 @@ def get_corr_matrix(dictionary, figure=True):
 
     Returns:
     -------
-    
+
     """
     vals = dictionary.values()
     keys = dictionary.keys()
@@ -96,11 +98,24 @@ def get_correlations_from_features(features, exp_id, figure=True):
     ----------
     features: list
         Available inputs(str): 'pupil_size', 'pupil_rate', 'saccade_rate', 'running_rate', 'running_speed'
+    exp_id : int
+        Experiment session id
+    figure : boolean
+        True to return correlation matrix and plot, False to only return correlation matrix
+
+    Returns:
+    -------
+    corr_matrix : matrix
+        Matrix of size features **2 containing pearson correlation coefficients
+    figure : plt
+        Graphical representation of correlation matrix
         """
+    # Load experiment data
     dataset = boc.get_ophys_experiment_data(exp_id)
     dict_values = []
     dict_keys = []
 
+    # Pull out desired behavior features
     for i in features:
 
         if 'pupil_area' == i:
@@ -114,10 +129,15 @@ def get_correlations_from_features(features, exp_id, figure=True):
             dict_values.append(pupil_diameter)
             dict_keys.append('pupil_diameter')
 
-        elif 'pupil_rate' == i:
-            pupil_rate = extract_smooth_pupil_rate(dataset, sigma=4)
-            dict_values.append(pupil_rate)
-            dict_keys.append('pupil_rate')
+        elif 'pupil_area_rate' == i:
+            pupil_area_rate, _ = extract_smooth_pupil_rate(dataset, sigma=4)
+            dict_values.append(pupil_area_rate)
+            dict_keys.append('pupil_area_rate')
+
+        elif 'pupil_diameter_rate' == i:
+            _, pupil_diameter_rate = extract_smooth_pupil_rate(dataset, sigma=4)
+            dict_values.append(pupil_diameter_rate)
+            dict_keys.append('pupil_diameter_rate')
 
         elif 'saccade_rate' == i:
             saccade_rate = extract_smooth_saccade_rate(dataset, sigma=4)
@@ -135,10 +155,13 @@ def get_correlations_from_features(features, exp_id, figure=True):
             dict_keys.append('running_speed')
 
         else:
-            print 'Not a valid feature'
+            print
+            'GTFO'
 
+    # Create dictionary of feature keys and values (np.arr)
     feature_dict = dict(zip(dict_keys, dict_values))
 
-    corr_matrix = get_corr_matrix(feature_dict, figure = figure)
+    # Create matrix of pearson correlation coefficients
+    corr_matrix = get_corr_matrix(feature_dict, figure=figure)
 
     return corr_matrix
