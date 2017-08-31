@@ -12,7 +12,6 @@ import seaborn as sns
 from scipy.ndimage.measurements import center_of_mass
 
 import matplotlib.pyplot as plt
-%matplotlib inline
 
 drive_path = '/data/dynamic-brain-workshop/brain_observatory_cache/'
 
