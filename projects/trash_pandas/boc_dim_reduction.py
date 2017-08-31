@@ -12,10 +12,8 @@ import load_by_stim as lbs
 import plotting as c_plt
 from matplotlib.collections import LineCollection
 import scipy.ndimage.filters as filt
-from pearson_corr_coeff import pearson_corr_coeff
+from utilities.pearson_corr_coeff import pearson_corr_coeff
 from swdb2017.brain_observatory.util.cell_specimen_ops import get_run_mod_cells
-import extract_pupil_features as epf
-import extract_running_features as err
 # Import brain observatory cache class. This is responsible for downloading any data
 # or metadata
 
@@ -46,21 +44,10 @@ meta_data = data_set.get_metadata()
 ############ Load and pre-process data for dim-reduction #####################
 
 # get df/f traces for spont activity
-binned = False
-out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False, binned=binned)
+out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False, binned=False)
 nTrials = len(out['fluorescence']['spont'])
-
-if binned:
-    pr_spont = out['pupil size']['spont'][0:nTrials]
-    pr_spont_smooth = out['pupil smooth']['spont'][0:nTrials]
-    rs_spont_smooth = out['running speed smooth']['spont'][0:nTrials]
-    dff_spont = np.stack(out['fluorescence']['spont'][0:nTrials], axis=1)
-else:
-    pr_spont = np.concatenate(out['pupil size']['spont'][0:nTrials], axis=0)
-    dff_spont = np.concatenate(out['fluorescence']['spont'][0:nTrials], axis=1)
-    pr_spont_smooth = np.concatenate(out['pupil smooth']['spont'][0:nTrials], axis = 0)
-    rs_spont_smooth = np.concatenate(out['running speed smooth']['spont'][0:nTrials], axis = 0)
-
+dff_spont = np.squeeze(np.stack(out['fluorescence']['spont'][0:nTrials],axis=1))
+pr_spont = np.concatenate(out['pupil size']['spont'][0:nTrials], axis = 0)
 f_mean = np.nanmean(dff_spont, axis =1)
 f_std = np.nanmean(dff_spont, axis=1)
 for i in range(0, len(f_mean)):
@@ -69,22 +56,17 @@ pr_spont = (pr_spont - np.nanmean(pr_spont))/np.nanstd(pr_spont)
 
 
 # get df/f traces for natural scences
-image = 30
+image = 5
 binned = False
 out, ns_cell_ids = lbs.get_ns_specific_fluorescence_traces(data_set, False, binned = binned)
 nTrials = len(out['fluorescence'][0])
 
 if binned:
-    pr_ns = out['pupil size'][image][0:nTrials].values
-    rs_ns_smooth = out['running speed smooth'][image][0:nTrials].values
+    pr_ns = out['pupil size'][image][0:nTrials]
     dff_ns = np.stack(out['fluorescence'][image][0:nTrials], axis=1)
-    pr_ns_smooth = out['pupil smooth'][image][0:nTrials]
 else:
     pr_ns = np.concatenate(out['pupil size'][image][0:nTrials], axis=0)
     dff_ns = np.concatenate(out['fluorescence'][image][0:nTrials], axis=1)
-    pr_ns_smooth = np.concatenate(out['pupil smooth'][image][0:nTrials], axis = 0)
-    rs_ns_smooth = np.concatenate(out['running speed smooth'][image][0:nTrials], axis = 0)
-
 f_mean = np.nanmean(dff_ns, axis =1)
 f_std = np.nanmean(dff_ns, axis=1)
 for i in range(0, len(f_mean)):
@@ -111,15 +93,16 @@ plt.ylabel('cells')
 
 ######## Singular value decomposition of NS responses for given stim ##########
 U, S, V = np.linalg.svd(dff_ns)
-p_corr = np.zeros(len(S))
-r_corr = np.zeros(len(S))
-
+corr = np.zeros(len(S))
 for i in range(0, len(S)):
-    p_corr[i] = pearson_corr_coeff(V.T[i], pr_ns_smooth)
-    r_corr[i] = pearson_corr_coeff(V.T[i], rs_ns_smooth)
+    corr[i] = pearson_corr_coeff(V.T[i], pr_ns)
 
 pcs = U[:,0:len(S)]*S
-
+plt.figure()
+plt.subplot(211)
+plt.plot(V.T[0])
+plt.subplot(212)
+plt.plot(V[0])
 # Make single trial projections
 '''
 Vt = V.transpose()
@@ -142,11 +125,9 @@ ax[0,0].plot(0.5*np.ones(len(S)), '--r')
 ax[1,0].plot(pcs[0], pcs[1], '.')
 ax[1,0].set_xlabel('PC1')
 ax[1,0].set_ylabel('PC2')
-ax[1,1].plot(pr_ns_smooth)
-ax[0,1].plot(p_corr)
-ax[0,1].plot(r_corr)
+ax[1,1].plot(pr_ns)
+ax[0,1].plot(corr)
 cm = plt.get_cmap('jet')
-
 '''
 for trial in range(0, V1.shape[1]):
     x = c_plt.colorline(V1[:,trial], V2[:,trial], cmap=plt.get_cmap('copper'), linewidth=1, alpha = 0.2)
@@ -158,11 +139,9 @@ ax[0,1].autoscale(True)
 
 ############ Singular value decomposition of spont acitivity ###################
 U, S, V = np.linalg.svd(dff_spont)
-p_corr = np.zeros(len(S))
-r_corr = np.zeros(len(S))
+corr = np.zeros(len(S))
 for i in range(0, len(S)):
-    p_corr[i] = pearson_corr_coeff(V.T[i], pr_spont_smooth)
-    r_corr[i] = pearson_corr_coeff(V.T[i], rs_spont_smooth)
+    corr[i] = pearson_corr_coeff(V.T[i], pr_spont)
 
 pcs = U*S
 var_explained = []
@@ -177,7 +156,6 @@ ax[0,0].plot(0.5*np.ones(len(S)), '--r')
 ax[1,0].plot(pcs[0], pcs[1], '.')
 ax[1,0].set_xlabel('PC1')
 ax[1,0].set_ylabel('PC2')
-ax[1,1].plot(pr_spont_smooth)
-ax[0,1].plot(p_corr)
-ax[0,1].plot(r_corr)
+ax[1,1].plot(pr_spont)
+ax[0,1].plot(corr)
 plt.show()
