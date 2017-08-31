@@ -25,7 +25,9 @@ def pearson_corr_coeff(x, y):
     nan_inds = np.sort(np.unique(np.concatenate((x_inds, y_inds))))
 
     x_no_nan = np.delete(x, nan_inds)
+    print x_no_nan
     y_no_nan = np.delete(y, nan_inds)
+    print y_no_nan
 
     corr_mat = np.corrcoef(x_no_nan, y_no_nan)
     corr_coef = corr_mat[1, 0]
