@@ -139,7 +139,6 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False, t_win=0):
     output dictionary
     '''
     t_win = int(np.floor(t_win/(1./30.)))
-    print(t_win)
     cell_ids = exp.get_cell_specimen_ids()
     if raw:
         t, dff = exp.get_fluorescence_traces()  # Read in calcium signal
@@ -147,6 +146,7 @@ def get_spont_specific_fluorescence_traces(exp, raw, binned=False, t_win=0):
         t, dff = exp.get_dff_traces()        # Read in calcium signal
     t, pr = exp.get_pupil_size()
     t, pl = exp.get_pupil_location(as_spherical = False)
+    print(pl.shape)
     rs, t = exp.get_running_speed()
     p_rate, _ = epf.extract_smooth_pupil_rate(exp)
     sac_rate = epf.extract_smooth_saccade_rate(exp)
