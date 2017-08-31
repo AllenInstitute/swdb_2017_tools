@@ -1,27 +1,3 @@
-def z_score(data):
-
-    '''
-    Arguments:
-    -----------------------
-    data: 1D or 2D array where rows are variables and columns are observations
-
-    Returns:
-    ----------------------
-    z_score_data: returns an array of the same size as data, with mean zero and
-    std zero (z-scored)
-    '''
-    z_score_data = np.empty(data.shape)
-    if len(data.shape) > 1:
-        data_m = np.nanmean(data, axis = 1)
-        data_std = np.nanstd(data, axis = 1)
-        for i in range(0,len(data_m)):
-            z_score_data[i,:] = (data[i,:] - data_m[i])/data_std[i]
-    else:
-        z_score_data = (data - np.nanmean(data))/np.nanstd(data)
-
-    return z_score_data
-
-
 # Set drive path to the brain observatory cache located on hard drive
 drive_path = '/media/charlie/Brain2017/data/dynamic-brain-workshop/brain_observatory_cache'
 
@@ -37,6 +13,7 @@ import plotting as c_plt
 from matplotlib.collections import LineCollection
 import scipy.ndimage.filters as filt
 from swdb2017.brain_observatory.behavior.correlation_matrix import pearson_corr_coeff
+from swdb2017.brain_observatory.utilities.z_score import z_score
 import extract_pupil_features as epf
 import extract_running_features as err
 
@@ -73,6 +50,7 @@ meta_data = data_set.get_metadata()
 binned = False
 out, spont_cell_ids = lbs.get_spont_specific_fluorescence_traces(data_set, False, binned=binned)
 nTrials = len(out['fluorescence']['spont'])
+print(out.keys())
 
 if binned:
     pr_spont = out['pupil size']['spont'][0:nTrials]
@@ -109,14 +87,9 @@ else:
     pr_ns_smooth = np.concatenate(out['pupil smooth'][image][0:nTrials], axis = 0)
     rs_ns_smooth = np.concatenate(out['running speed smooth'][image][0:nTrials], axis = 0)
 
-'''
-f_mean = np.nanmean(dff_ns, axis =1)
-f_std = np.nanmean(dff_ns, axis=1)
-for i in range(0, len(f_mean)):
-    dff_ns[i,:] = (dff_ns[i,:] - f_mean[i])/f_std[i]
-'''
 dff_ns = z_score(dff_ns)
-pr_ns = (pr_ns - np.nanmean(pr_ns))/np.nanstd(pr_ns)
+pr_ns = z_score(pr_ns)
+#pr_ns = (pr_ns - np.nanmean(pr_ns))/np.nanstd(pr_ns)
 
 
 # Qualitative look at spont population acitivity
