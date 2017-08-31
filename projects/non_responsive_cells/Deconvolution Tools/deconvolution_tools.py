@@ -168,7 +168,7 @@ def get_epoch_spiking_data(boc, ophys_experiment_id, num_std=6):
              output of the deconvolution algorithm
      Returns:
         spikes: keys: cell_specimen_ids values: lists indicating spike occurances
-        timestamps: list of timestamps matched to lists in spikes
+        timestamps_dict: lell_specimen_ids values: list of timestamps
         spike_times: keys: cell_specimen_ids values: spike time
         isis: keys: cell_specimen_ids values: interspike intervals
     '''
@@ -181,6 +181,7 @@ def get_epoch_spiking_data(boc, ophys_experiment_id, num_std=6):
     spike_times = {}
     isis = {}
     data = {}
+    timestamps_dict = {}
 
     dff_traces = np.asarray(dff_traces)
 
@@ -196,9 +197,9 @@ def get_epoch_spiking_data(boc, ophys_experiment_id, num_std=6):
         isis[stim] = {}
 
         data[stim]['dff'] = dff_traces[:, start:end].tolist()
-        data[stim]['timestamps'] = timestamps[start:end]
+        timestamps_dict[stim] = timestamps[start:end]
 
         spikes[stim], spike_times[stim], isis[stim] = get_spiking_data(
-            data[stim]['dff'], data[stim]['timestamps'], cell_specimen_ids, num_std=num_std)
+            data[stim]['dff'], timestamps_dict[stim], cell_specimen_ids, num_std=num_std)
 
-    return spikes, timestamps, spike_times, isis
+    return spikes, timestamps_dict, spike_times, isis
