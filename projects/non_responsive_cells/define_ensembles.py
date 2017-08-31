@@ -122,7 +122,7 @@ def shuffle_intervals(spkts,T,dt,binsize):
           
 
 
-def find_high_activity(spktms, nsurr=1000, pval = 0.05, dt=1./30, binsize=0.250, T=[0,3550]):
+def find_high_activity(spktms, T, dt, binsize, nsurr=1000, pval = 0.05):
     '''Returns binarized periods of "high activity", as compared with surrogate
         
     Parameters
