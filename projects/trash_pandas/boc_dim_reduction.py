@@ -52,10 +52,12 @@ nTrials = len(out['fluorescence']['spont'])
 
 if binned:
     pr_spont = out['pupil size']['spont'][0:nTrials]
+    pr_spont_smooth = out['pupil smooth']['smooth'][0:nTrials]
     dff_spont = np.stack(out['fluorescence']['spont'][0:nTrials], axis=1)
 else:
     pr_spont = np.concatenate(out['pupil size']['spont'][0:nTrials], axis=0)
     dff_spont = np.concatenate(out['fluorescence']['spont'][0:nTrials], axis=1)
+    pr_spont_smooth = np.concatenate(out['pupil smooth']['spont'][0:nTrials], axis = 0)
 
 f_mean = np.nanmean(dff_spont, axis =1)
 f_std = np.nanmean(dff_spont, axis=1)
@@ -66,16 +68,18 @@ pr_spont = (pr_spont - np.nanmean(pr_spont))/np.nanstd(pr_spont)
 
 # get df/f traces for natural scences
 image = 5
-binned = False
+binned = True
 out, ns_cell_ids = lbs.get_ns_specific_fluorescence_traces(data_set, False, binned = binned)
 nTrials = len(out['fluorescence'][0])
 
 if binned:
-    pr_ns = out['pupil size'][image][0:nTrials]
+    pr_ns = out['pupil size'][image][0:nTrials].values
     dff_ns = np.stack(out['fluorescence'][image][0:nTrials], axis=1)
+    pr_ns_smooth = out['pupil smooth'][image][0:nTrials]
 else:
     pr_ns = np.concatenate(out['pupil size'][image][0:nTrials], axis=0)
     dff_ns = np.concatenate(out['fluorescence'][image][0:nTrials], axis=1)
+    pr_ns_smooth = np.concatenate(out['pupil smooth'][image][0:nTrials], axis = 0)
 
 f_mean = np.nanmean(dff_ns, axis =1)
 f_std = np.nanmean(dff_ns, axis=1)
@@ -103,15 +107,12 @@ plt.ylabel('cells')
 ######## Singular value decomposition of NS responses for given stim ##########
 U, S, V = np.linalg.svd(dff_ns)
 corr = np.zeros(len(S))
+
 for i in range(0, len(S)):
     corr[i] = pearson_corr_coeff(V.T[i], pr_ns)
 
 pcs = U[:,0:len(S)]*S
-plt.figure()
-plt.subplot(211)
-plt.plot(V.T[0])
-plt.subplot(212)
-plt.plot(V[0])
+
 # Make single trial projections
 '''
 Vt = V.transpose()
@@ -137,6 +138,7 @@ ax[1,0].set_ylabel('PC2')
 ax[1,1].plot(pr_ns)
 ax[0,1].plot(corr)
 cm = plt.get_cmap('jet')
+
 '''
 for trial in range(0, V1.shape[1]):
     x = c_plt.colorline(V1[:,trial], V2[:,trial], cmap=plt.get_cmap('copper'), linewidth=1, alpha = 0.2)
@@ -150,7 +152,7 @@ ax[0,1].autoscale(True)
 U, S, V = np.linalg.svd(dff_spont)
 corr = np.zeros(len(S))
 for i in range(0, len(S)):
-    corr[i] = pearson_corr_coeff(V.T[i], pr_spont)
+    corr[i] = pearson_corr_coeff(V.T[i], pr_spont_smooth)
 
 pcs = U*S
 var_explained = []
