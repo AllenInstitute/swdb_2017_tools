@@ -95,7 +95,8 @@ pr_ns = (pr_ns - np.nanmean(pr_ns))/np.nanstd(pr_ns)
 # Qualitative look at spont population acitivity
 plt.figure()
 plt.title('Spontaneous activity')
-plt.imshow(dff_spont, aspect='auto')
+for i in range(len(ns_cell_ids)):
+    plt.plot(10000*i*np.ones(dff_spont.shape[1])+dff_spont[i])
 plt.xlabel('frames')
 plt.ylabel('cells')
 
