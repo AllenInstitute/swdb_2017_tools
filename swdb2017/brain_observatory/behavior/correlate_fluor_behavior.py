@@ -108,7 +108,7 @@ def corr_ns_behavior(exp, raw=False):
     Returns
     -------
     ns_behavior_corr_df : pandas dataframe
-      contains pearson corelation coefficients split by behavior features being correlated (column) by cell id (row)
+      contains pearson correlation coefficients split by behavior features being correlated (column) by cell id (row)
     '''
 
     stim = 'natural_scenes'
@@ -180,14 +180,40 @@ def corr_ns_behavior(exp, raw=False):
 
     return ns_behavior_corr_df
 
-def count_corr_cells(list_arr, threshold):
-    stacked = np.vstack(list_arr)
-    is_sig_pos = np.zeros(stacked.shape)
-    is_sig_neg = np.zeros(stacked.shape)
-    for i in range(len(stacked[0])):
-        is_sig_pos[(stacked[:, i] > threshold), i] = 1
-        is_sig_neg[(stacked[:, i] < -threshold), i] = 1
 
+def count_corr_cells(df, threshold):
+    """
+    Counts number of values in each column (behavior feature correlation) above
+    an input threshold and below -threshold separately
+
+    Parameters:
+    ----------
+    df : pandas dataframe
+        contains pearson correlation coefficients from behavior features
+    threshold : float
+        between 0 and 1
+
+    Returns:
+    -------
+    pos_count : array
+        contains a summed value of significant correlations for each feature
+    neg_count : array
+        contains a summed value of significant correaltion for each feature
+    """
+
+    # Initialize components
+    df_keys = df.columns[1:]
+    is_sig_pos = np.zeros((len(df[df.columns[0]].values), len(df_keys)))
+    is_sig_neg = np.zeros((len(df[df.columns[0]].values), len(df_keys)))
+
+    # Assign values based on threshold
+    for i, key in enumerate(df_keys):
+        vals = df[key].values
+        is_sig_pos[(vals > threshold), i] = 1
+        is_sig_neg[(vals < -threshold), i] = 1
+
+    # Sum values
     pos_count = np.sum(is_sig_pos, axis=0)
     neg_count = np.sum(is_sig_neg, axis=0)
+
     return pos_count, neg_count
