@@ -4,7 +4,12 @@ import matplotlib.pyplot as plt
 import os
 from trash_cache import TrashCache
 
-manifest_path = '/media/charlie/Brain2017/data/dynamic-brain-workshop/trash_cache/spontPCA/'
+stim_type = "natural_scenes"
+image = 1
+if stim_type == 'spont':
+    manifest_path = '/media/charlie/Brain2017/data/dynamic-brain-workshop/trash_cache/spontPCA/'
+elif stim_type == 'natural_scenes':
+    manifest_path = os.path.join('/media/charlie/Brain2017/data/dynamic-brain-workshop/trash_cache/nsPCA/', str(image))
 
 tc = TrashCache(os.path.join(manifest_path, 'trash_cache_manifest.json'))
 exps = os.listdir(os.path.join(manifest_path, 'exps'))
