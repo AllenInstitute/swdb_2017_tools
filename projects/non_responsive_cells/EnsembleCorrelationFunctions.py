@@ -431,7 +431,7 @@ def get_correlation_cliques(ensembles,ensemble_pair_ind,verbose=False):
         print('Number of cliques: ',len(cliques))
         print ''
         print 'The first few cliques: (clique # in first column)'
-        for i in range(10):
+        for i in range(2):
             print [i, cliques[i]]
             
         print ''
