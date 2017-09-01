@@ -528,11 +528,14 @@ def get_unique_core_ensembles(ensembles,cliques,percents):
 #--------------------------------------------------------------#
 # Define Summary Statistics
 #--------------------------------------------------------------#
-def summary_stats(cliques,CE_final,verbose=False):
+def summary_stats(ensembles,cliques,CE_final,verbose=False):
     
     '''
     Parameters
     ----------
+    
+        ensembles: matrix of cells x ensembles
+        
         cliques: sets of ensembles that are correlated with all other ensembles in set
         
         CE_final: sets of unique core ensembles
