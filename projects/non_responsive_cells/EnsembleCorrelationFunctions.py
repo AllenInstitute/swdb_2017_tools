@@ -1,9 +1,10 @@
-'''
+"""
 EnsembleCorrelationFunctions.py
 
 A small part of the Non Visually Responsive Cell Project
 Dynamic Brain Workshop, Friday Harbor WA
 August 29, 2017
+last update: Aug 31 6:45 pm
 Jacob Portes, j.portes@columbia.edu
 
 The following code implements the ensemble correlation algorithm outlined in 
@@ -27,7 +28,7 @@ frames in each comparison (shuffling across cells).
 estimated as the correlation coefficient that exceeded only 5% of 
 correlation coefficients between these surrogate ensembles 
 (using np.percentile)
-'''
+"""
 
 # AWS
 # drive_path = '/data/dynamic-brain-workshop/brain_observatory_cache/'
@@ -41,8 +42,10 @@ import sys
 import h5py
 import matplotlib.pyplot as plt
 
-## Generate Threshold for Each Ensemble Comparison
+#--------------------------------------------------------------#
+# Generate Threshold for Each Ensemble Comparison
 # for a single comparison, generate surrogate by shuffling
+#--------------------------------------------------------------#
 def generate_threshold_surrogate(ens_a,ens_b,permute_num,percent):
 
     surr_corr = np.zeros(permute_num)
@@ -57,8 +60,9 @@ def generate_threshold_surrogate(ens_a,ens_b,permute_num,percent):
     return thresh_final # return bound for Fisher z transform
 
 
-
-
+#--------------------------------------------------------------#
+# Calculate Correlations within a set of ensembles
+#--------------------------------------------------------------#
 def correlations_between_ensembles(ensemble_array,surr_num,percentile,verbose=False):
     
     '''
@@ -72,14 +76,21 @@ def correlations_between_ensembles(ensemble_array,surr_num,percentile,verbose=Fa
     surr_num: int
         Number of desired surrogate ensembles
         
+        
     Returns
     -----------
+    ensemble_matrix:
+        Return matrix of ensemble pairs above threshold
+        size rows-->cells, cols-->ensembles, but in pairs!
+        
     above_thresh_ensembles_boot: 
-        Indices of coupled pairs, numpy array of pair indices from each subset 
-        (2 columns -->
+        Indices of coupled pairs, numpy arrayof pair indices (2 columns)
+        
     z_values_boot:
-        Fisher-z values of selected ensemble pairings
+        Fisher-z values of selected ensembles
     '''
+    
+   
 
     if verbose:
         print 'verbose = True'
@@ -208,8 +219,9 @@ def correlations_between_ensembles(ensemble_array,surr_num,percentile,verbose=Fa
     # return F_lower_thresh
     
 
-    
-    
+#--------------------------------------------------------------#
+# Calculate correlations between TWO sets of ensembles, very similar to above
+#--------------------------------------------------------------#
 def correlations_between_ensemble_sets(ensemble_array1,ensemble_array2,surr_num,percentile,verbose=False):
     
     '''
@@ -225,15 +237,13 @@ def correlations_between_ensemble_sets(ensemble_array1,ensemble_array2,surr_num,
     surr_num: int
         Number of desired surrogate ensembles
         
-    Returns
+     Returns
     -----------
-    ensemble_matrix:
-        Return matrix of ensemble pairs above threshold
-        size rows-->cells, cols-->ensembles, but in pairs!
     above_thresh_ensembles_boot: 
-        Indices of coupled pairs, numpy arrayof pair indices (2 columns)
+        Indices of coupled pairs, numpy array of pair indices from each subset 
+        (2 columns -->
     z_values_boot:
-        Fisher-z values of selected ensembles
+        Fisher-z values of selected ensemble pairings
     '''
 
     if verbose:
@@ -369,7 +379,208 @@ def correlations_between_ensemble_sets(ensemble_array1,ensemble_array2,surr_num,
 
 
     # Return all Fisher z values
-    # return F
-    
     # Return bootstrapped thresholds for all pair comparisons
-    # return F_lower_thresh
+    # return F, F_lower_thresh
+
+
+#--------------------------------------------------------------#
+# The following function takes a set of ensemble pair indices and groups them into 'cliques'
+# 
+# Example: The following pairs (1,5) (3,4) (3,6) (4,6) (6,21) (22,27)...
+# will be formed into the following clique: [3,4,6]
+# notice that even though 4<-->6 and 6<-->21, 4 is not <--> 21, so it is not considered a clique
+#--------------------------------------------------------------#
+def get_correlation_cliques(ensemble_pair_ind,verbose=False):
+    pair_indices_zip = zip(ensemble_pair_ind[:,0],ensemble_pair_ind[:,1])
+    
+    '''
+    Parameters
+    ----------
+    ensemble_pair_ind: pair of ensemble indices
+    
+    Returns
+    -------
+    cliques: sets of ensembles that are correlated with eachother
+    
+    '''
+    
+    if verbose:
+        print'First 50 Pairs: '
+        print pair_indices_zip[:50]
+        print('Full size of pairs:',ensemble_pair_ind.shape[0])
+        print ''
+
+    import networkx as nx
+    G = nx.Graph()
+    G.add_edges_from(pair_indices_zip)
+
+    import timeit
+    # START
+    start_time = timeit.default_timer()
+
+    # Find the cliques!
+    cliques = list(nx.find_cliques(G))
+
+    # END
+    elapsed = timeit.default_timer() - start_time
+
+    if verbose:
+        print('Elapsed time:',elapsed) 
+        print('Number of cliques: ',len(cliques))
+        print ''
+        print 'The first few cliques: (clique # in first column)'
+        for i in range(10):
+            print [i, cliques[i]]
+            
+        print ''
+            
+            
+        # PLOT EXAMPLE CLIQUE AND CORE
+        sample_clique = cliques[0]
+        sample_ensembles = ensembles[:,sample_clique]
+        sum_col = np.sum(sample_ensembles,axis=1)
+
+        print('Shape of sample ensemble: ',sample_ensembles.shape)
+
+        thresh_core = np.percentile(sum_col,90)
+        print('Example percentile cutoff: ',thresh_core)
+        print ''
+
+        core_cell_ind = np.where(sum_col >= thresh_core)
+        #print core_cell_ind
+        #print sample_ensembles.shape
+
+
+        # A nice way of looking at the data for a sample clique
+        from matplotlib import gridspec
+
+        # Plot Ensembles
+        fig = plt.figure(figsize=(8, 6)) 
+        fig,ax= plt.subplots(figsize=(8,4))
+        gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1]) 
+        ax0 = plt.subplot(gs[0])
+        ax0.imshow(sample_ensembles,aspect='auto')
+        plt.ylabel('Cell #')
+        plt.xlabel('Ensemble # in clique')
+        # Label xticks with corresponding pairs
+        plt.xticks(range(len(sample_clique)), sample_clique)
+
+        # Plot sum across ensembles
+        ax1 = plt.subplot(gs[1])
+        ax1.plot(sum_col,range(len(sum_col))[::-1])
+        ax1.plot([thresh_core,thresh_core],[0, sum_col.shape[0]],'r')
+        plt.ylim([0, np.shape(sum_col)[0]-1])
+        plt.xlabel('Ensemble Participation Count')
+        plt.title('90 percentile')
+        plt.suptitle('Example Clique: Defining Core Ensembles',fontsize=18)
+        #plt.tight_layout()
+            
+            
+        
+    return cliques
+
+
+#--------------------------------------------------------------#
+# Get a unique set of core cells given ensembles and a set of ensemble cliques
+#--------------------------------------------------------------#
+
+def get_unique_core_ensembles(ensembles,cliques,percents):
+    
+    '''
+    Parameters
+    ----------
+        ensembles: matrix of cells (rows) x ensembles (cols)
+
+        cliques: sets of ensembles that are all correlated with eachother
+        
+        percents: percentile of which cells are considered "core"
+    
+    Returns
+    ----------
+        CE_final: sets of unique core ensembles
+
+    
+    '''
+    
+    # Define a function that takes in a clique and spits out core ensemble CELL indices
+    def get_core_ensemble_indices(clique_ensembles,percentile):
+        sum_col = np.sum(clique_ensembles,axis=1)
+        thresh_core = np.percentile(sum_col,percentile)
+        core_cell_ind = np.where(sum_col >= thresh_core)[0] # return of np.where is a tuple of numpy arrays
+    
+        return core_cell_ind
+
+    # HERE LIES THE FUNCTION THAT FINDS CORE ENSEMBLE CELL INDICES FOR ALL CLIQUES
+    CE = [get_core_ensemble_indices(ensembles[:,cliques[i]],percents) for i in range(len(cliques))]
+
+    CE_unique = map(tuple, CE) # Map core ensembles to tuples in order to use set()
+    CE_unique = set(CE_unique) # Find unique core ensembles (aka remove repetitions)
+    CE_final = map(list,CE_unique) # Final list of unique cliques
+
+    print('Number of core ensembles, same as number of cliques: ',len(CE))
+    print('Number of unique core ensembles: ',len(CE_unique))
+
+    return CE_final
+
+
+#--------------------------------------------------------------#
+# Define Summary Statistics
+#--------------------------------------------------------------#
+def summary_stats(cliques,CE_final,verbose=False):
+    
+    '''
+    Parameters
+    ----------
+        cliques: sets of ensembles that are correlated with all other ensembles in set
+        
+        CE_final: sets of unique core ensembles
+    
+    
+    Returns
+    ----------
+        clique_summary: number of ensembles in clique across cliques
+        
+        core_summary: Number of cells in core across all unique core Ensembles
+        
+        percent_participation: percent participation of each core across all ensembles
+    
+    '''
+
+
+    # Sizes of cliques (aka number of ensembles in each clique)
+    clique_summary = [len(cliques[i]) for i in range(len(cliques))]
+
+    # Sizes of cores (aka number of cells in each unique core)
+    core_summary = [len(CE_final[i]) for i in range(len(CE_final))]
+
+    if verbose:
+        fig,ax = plt.subplots(figsize=(10,5))
+        plt.subplot(121)
+        plt.hist(clique_summary)
+        plt.title('Number of Ensembles in Clique Across Cliques')
+        plt.xlabel('Number of Ensembles in Clique')
+
+        plt.subplot(122)
+        plt.hist(core_summary)
+        plt.title('Number of Cells in Core Across all Unique Core Ensembles')
+        plt.xlabel('Number of Cells in Unique Core')
+
+        plt.tight_layout()
+
+
+    # Calculate how often each core appears in the original set of ensembles
+    core_in_ensemble = [np.where(np.sum(ensembles[CE_final[i],:],axis=0)==len(CE_final[i])) 
+                        for i in range(len(CE_final))]
+
+    repetition_count = [core_in_ensemble[i][0].shape[0] for i in range(len(core_in_ensemble))]
+
+    percent_participation = 100*np.array(repetition_count).astype(float)/ensembles.shape[1]
+
+    if verbose:
+        fig,ax = plt.subplots(figsize=(10,5))
+        plt.hist(percent_participation)
+        plt.xlabel('Percent Participation %')
+        plt.ylabel('Number of Core Ensembles')
+        plt.title('Core Ensemble Participation in All Ensembles')
+    
+    return clique_summary, core_summary, percent_participation
