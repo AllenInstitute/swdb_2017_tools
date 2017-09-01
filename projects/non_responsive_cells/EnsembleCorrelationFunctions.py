@@ -390,12 +390,14 @@ def correlations_between_ensemble_sets(ensemble_array1,ensemble_array2,surr_num,
 # will be formed into the following clique: [3,4,6]
 # notice that even though 4<-->6 and 6<-->21, 4 is not <--> 21, so it is not considered a clique
 #--------------------------------------------------------------#
-def get_correlation_cliques(ensemble_pair_ind,verbose=False):
+def get_correlation_cliques(ensembles,ensemble_pair_ind,verbose=False):
     pair_indices_zip = zip(ensemble_pair_ind[:,0],ensemble_pair_ind[:,1])
     
     '''
     Parameters
     ----------
+    ensembles: full matrix of ensembles
+    
     ensemble_pair_ind: pair of ensemble indices
     
     Returns
