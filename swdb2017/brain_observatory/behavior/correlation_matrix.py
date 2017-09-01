@@ -1,5 +1,9 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+import swdb2017.brain_observatory.behavior.extract_pupil_features as epf
+import swdb2017.brain_observatory.behavior.extract_running_features as erf
+from allensdk.core.brain_observatory_cache import BrainObservatoryCache
 
 def pearson_corr_coeff(x, y):
     '''
@@ -48,17 +52,17 @@ def corr_matrix(arr_list):
     """
     # Create matrix
     nVar = len(arr_list)
-    coef_mat = np.zeros((nVar, nVar))
+    corr_mat = np.zeros((nVar, nVar))
 
     # Put correlation values into matrix
     for i in range(nVar):
         for j in range(i, nVar):
-            coef_mat[i, j] = pearson_corr_coeff(arr_list[i], arr_list[j])
+            corr_mat[i, j] = pearson_corr_coeff(arr_list[i], arr_list[j])
 
     # Create square matrix
-    coef_mat = np.triu(coef_mat, 1).T + coef_mat
+    corr_mat = np.triu(corr_mat, 1).T + corr_mat
 
-    return coef_mat
+    return corr_mat
 
 
 def get_corr_matrix(dictionary, figure=True):
@@ -82,21 +86,22 @@ def get_corr_matrix(dictionary, figure=True):
     coef_mat = corr_matrix(vals)
 
     if figure is True:
-        plt.imshow(coef_mat, cmap='viridis', clim=(-1., 1.))
+        plt.imshow(coef_mat, cmap = 'plasma', clim = (-1., 1.))
         plt.grid(False)
         plt.colorbar()
-        plt.xticks(range(len(keys)), keys, rotation=45)
-        plt.yticks(range(len(keys)), keys, rotation='horizontal')
+        plt.xticks(range(len(keys)), keys, rotation = 'vertical')
+        plt.yticks(range(len(keys)), keys, rotation = 'horizontal')
 
     return coef_mat
 
 
-def get_correlations_from_features(features, exp_id, figure=True):
+def get_correlations_from_features(boc, features, exp_id, figure=True):
     """
     Parameters:
     ----------
     features: list
-        Available inputs(str): 'pupil_size', 'pupil_rate', 'saccade_rate', 'running_rate', 'running_speed'
+        Available inputs(str): 'pupil_area_smooth', 'pupil_area_rate',
+        'saccade_rate', 'running_rate_smooth', 'running_speed_smooth'
     exp_id : int
         Experiment session id
     figure : boolean
@@ -104,8 +109,8 @@ def get_correlations_from_features(features, exp_id, figure=True):
 
     Returns:
     -------
-    corr_matrix : matrix
-        Matrix of size features **2 containing pearson correlation coefficients
+    feature_corr_df : pandas dataframe
+        contains pearson correlation coefficients split by behavior features being correlated (column and row)
     figure : plt
         Graphical representation of correlation matrix
         """
@@ -116,46 +121,33 @@ def get_correlations_from_features(features, exp_id, figure=True):
 
     # Pull out desired behavior features
     for i in features:
-
-        if 'pupil_area' == i:
-            pupil_area, _ = extract_smooth_pupil(dataset, sigma=4)
+        if 'pupil_area_smooth' == i:
+            pupil_area, _ = epf.extract_smooth_pupil(dataset, sigma=4)
             dict_values.append(pupil_area)
             dict_keys.append('pupil_area')
 
-
-        elif 'pupil_diameter' == i:
-            _, pupil_diameter = extract_smooth_pupil(dataset, sigma=4)
-            dict_values.append(pupil_diameter)
-            dict_keys.append('pupil_diameter')
-
         elif 'pupil_area_rate' == i:
-            pupil_area_rate, _ = extract_smooth_pupil_rate(dataset, sigma=4)
+            pupil_area_rate, _ = epf.extract_smooth_pupil_rate(dataset, sigma=4)
             dict_values.append(pupil_area_rate)
             dict_keys.append('pupil_area_rate')
 
-        elif 'pupil_diameter_rate' == i:
-            _, pupil_diameter_rate = extract_smooth_pupil_rate(dataset, sigma=4)
-            dict_values.append(pupil_diameter_rate)
-            dict_keys.append('pupil_diameter_rate')
-
         elif 'saccade_rate' == i:
-            saccade_rate = extract_smooth_saccade_rate(dataset, sigma=4)
+            saccade_rate = epf.extract_smooth_saccade_rate(dataset, sigma=4)
             dict_values.append(saccade_rate)
             dict_keys.append('saccade_rate')
 
-        elif 'running_rate' == i:
-            running_rate = extract_smooth_running_rate(dataset, sigma=2)
+        elif 'running_rate_smooth' == i:
+            running_rate = erf.extract_smooth_running_rate(dataset, sigma=2)
             dict_values.append(running_rate)
             dict_keys.append('running_rate')
 
-        elif 'running_speed' == i:
-            running_speed = extract_smooth_running_speed(dataset, sigma=2)
+        elif 'running_speed_smooth' == i:
+            running_speed = erf.extract_smooth_running_speed(dataset, sigma=2)
             dict_values.append(running_speed)
             dict_keys.append('running_speed')
 
         else:
-            print
-            'GTFO'
+            print('Invalid feature.')
 
     # Create dictionary of feature keys and values (np.arr)
     feature_dict = dict(zip(dict_keys, dict_values))
@@ -163,5 +155,6 @@ def get_correlations_from_features(features, exp_id, figure=True):
     # Create matrix of pearson correlation coefficients
     corr_matrix = get_corr_matrix(feature_dict, figure=figure)
 
-    return corr_matrix
+    feature_corr_df = pd.DataFrame(corr_matrix, columns=[feature_dict.keys()], index=[feature_dict.keys()])
 
+    return feature_corr_df
