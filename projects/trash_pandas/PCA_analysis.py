@@ -5,7 +5,7 @@ import os
 from trash_cache import TrashCache
 
 stim_type = "natural_scenes"
-image = 1
+image = 50
 if stim_type == 'spont':
     manifest_path = '/media/charlie/Brain2017/data/dynamic-brain-workshop/trash_cache/spontPCA/'
 elif stim_type == 'natural_scenes':
