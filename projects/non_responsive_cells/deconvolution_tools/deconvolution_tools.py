@@ -24,7 +24,7 @@ def get_spiking_data(dff_traces, timestamps, cell_specimen_ids, num_std=3):
         timestamps: list containing dff_timestamps
     '''
 
-    from OASIS.functions import deconvolve
+    from oasis.functions import deconvolve
 
     dff_trace = dff_traces[0]
     spike_prob_list = []
