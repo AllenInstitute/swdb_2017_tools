@@ -1,3 +1,16 @@
+'''
+Outer wrapper script for PCA analysis. This script calls PCA_batch function
+(located in PCA_Behavior_Analysis.py) which completes the analysis and returns a
+dictionary of analysis results. These results are then saved using the trash_cache
+
+Instructions:
+Change the variable "stim_type" in order to choose which class of images you'd like
+to analyze. If 'natural_scenes' is specified, provide a list of the natural_scenes
+you'd like to analyze. These results will all be saved into directories corresponding
+to their ids within the trash_cache located on external hard drive
+'''
+
+
 # Set drive path to the brain observatory cache located on hard drive
 drive_path = '/media/charlie/Brain2017/data/dynamic-brain-workshop/brain_observatory_cache'
 
@@ -37,6 +50,8 @@ exps_ = boc.get_ophys_experiments(stimuli = ['natural_scenes'], simple = False, 
 exps = []
 
 stim_type = 'natural_scenes'
+images = [1, 10, 20, 30, 40, 50]
+
 for i, exp in enumerate(exps_):
     if (exps_[i]['fail_eye_tracking']==False):
         exps.append(exps_[i])
@@ -67,7 +82,7 @@ for i in range(0, len(exps)):
         tc.save_experiments([exp])
 
     elif stim_type == 'natural_scenes':
-        images = [1, 10, 20, 30, 40, 50]
+
         for image in images:
             trash_cache_path = os.path.join('/media/charlie/Brain2017/data/dynamic-brain-workshop/trash_cache/nsPCA', str(image))
             tc = TrashCache(os.path.join(trash_cache_path, 'trash_cache_manifest.json'))
@@ -85,25 +100,3 @@ for i in range(0, len(exps)):
             )
 
             tc.save_experiments([exp])
-
-    '''
-    import seaborn as sns
-    corr = behavior['corr_mat'].T
-    targeted_structure = 'VISam'
-    cre_line = meta_data['genotype']
-    plt.figure()
-    plt.subplot(211)
-    plt.title('exp_id: %s, targeted_structures: %s, cre_line: %s' %(exp_id, targeted_structure, cre_line))
-    ax = sns.heatmap(corr)
-    for item in ax.get_xticklabels():
-        item.set_rotation(90)
-    for item in ax.get_yticklabels():
-        item.set_rotation(0)
-    plt.subplot(212)
-    plt.title('PCs needed to explain 50 percent of variance: %s' %pca['fraction_pcs'])
-    plt.plot(pca['var_explained'], '.')
-    '''
-
-
-
-#plt.show()

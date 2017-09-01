@@ -4,7 +4,7 @@ import load_by_stim as lbs
 from swdb2017.brain_observatory.utilities.z_score import z_score
 from swdb2017.brain_observatory.behavior.correlation_matrix import pearson_corr_coeff
 
-def PCA_batch(data_set, stim_type, images = 0, smoothed=0):
+def PCA_batch(data_set, stim_type, images = 0):
     '''
     Uses singular value decomposition to decompose population activity into
     its principle components for a given stimulus. Runs correlation analysis
@@ -15,7 +15,8 @@ def PCA_batch(data_set, stim_type, images = 0, smoothed=0):
     ------------------------------
     data_set: an instance of get_ophys_experiment_data for a given experiment id
     stim: stimulus category i.e. "natural_scenes"  (will just use spont for now)
-
+    stim_type: string, 'natural_scenes' or 'spont'
+    images: optional, if given, is list of natural scenes to analyze
 
     Returns:
     ------------------------------

@@ -4,6 +4,13 @@ import matplotlib.pyplot as plt
 import os
 from trash_cache import TrashCache
 
+
+'''
+---------------------------------------------------------------------------
+Script for analyzing PCA data that is stored in the trash_cache
+-------------------------------------------------------------------------
+'''
+
 stim_type = "natural_scenes"
 images = [1,10,20,30,40,50]
 # ------------------- plotting and analysis for natural scenes -----------------
