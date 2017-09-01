@@ -11,7 +11,7 @@ Script for analyzing PCA data that is stored in the trash_cache
 -------------------------------------------------------------------------
 '''
 
-stim_type = "natural_scenes"
+stim_type = "spont"
 images = [1,10,20,30,40,50]
 # ------------------- plotting and analysis for natural scenes -----------------
 if stim_type == 'natural_scenes':
@@ -55,32 +55,32 @@ if stim_type == 'natural_scenes':
             print(spontPCA_data[0]['corr_mat'].T.keys())
             if  target_area == 'VISpm':
                 fr_pm.append(spontPCA_data[0]['Fraction of PCs'])
-                p_corr_VISpm.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-                r_corr_VISpm.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+                p_corr_VISpm.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+                r_corr_VISpm.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
                 x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
                 plt.plot(x, spontPCA_data[0]['var_explained'], '-r')
             elif target_area == 'VISp':
                 fr_p.append(spontPCA_data[0]['Fraction of PCs'])
-                p_corr_VISp.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-                r_corr_VISp.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+                p_corr_VISp.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+                r_corr_VISp.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
                 x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
                 plt.plot(x, spontPCA_data[0]['var_explained'], '-y')
             elif target_area == 'VISrl':
                 fr_rl.append(spontPCA_data[0]['Fraction of PCs'])
-                p_corr_VISrl.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-                r_corr_VISrl.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+                p_corr_VISrl.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+                r_corr_VISrl.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
                 x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
                 plt.plot(x, spontPCA_data[0]['var_explained'], '-g')
             elif target_area == 'VISal':
                 fr_al.append(spontPCA_data[0]['Fraction of PCs'])
-                p_corr_VISal.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-                r_corr_VISal.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+                p_corr_VISal.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+                r_corr_VISal.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
                 x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
                 plt.plot(x, spontPCA_data[0]['var_explained'], '-p')
             elif target_area == 'VISam':
                 fr_am.append(spontPCA_data[0]['Fraction of PCs'])
-                p_corr_VISam.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-                r_corr_VISam.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+                p_corr_VISam.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+                r_corr_VISam.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
                 x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
                 plt.plot(x, spontPCA_data[0]['var_explained'], '-k')
             elif target_area == 'VISl':
@@ -163,34 +163,35 @@ elif stim_type == 'spont':
         #print(spontPCA_data[0].keys())
         target_area = spontPCA_data[0]['meta_data']['targeted_structure']
         print(spontPCA_data[0]['corr_mat'].T.keys())
+
         if  target_area == 'VISpm':
             fr_pm.append(spontPCA_data[0]['Fraction of PCs'])
-            p_corr_VISpm.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-            r_corr_VISpm.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+            p_corr_VISpm.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+            r_corr_VISpm.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
             x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
             plt.plot(x, spontPCA_data[0]['var_explained'], '-r')
         elif target_area == 'VISp':
             fr_p.append(spontPCA_data[0]['Fraction of PCs'])
-            p_corr_VISp.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-            r_corr_VISp.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+            p_corr_VISp.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+            r_corr_VISp.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
             x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
             plt.plot(x, spontPCA_data[0]['var_explained'], '-y')
         elif target_area == 'VISrl':
             fr_rl.append(spontPCA_data[0]['Fraction of PCs'])
-            p_corr_VISrl.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-            r_corr_VISrl.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+            p_corr_VISrl.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+            r_corr_VISrl.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
             x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
             plt.plot(x, spontPCA_data[0]['var_explained'], '-g')
         elif target_area == 'VISal':
             fr_al.append(spontPCA_data[0]['Fraction of PCs'])
-            p_corr_VISal.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-            r_corr_VISal.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+            p_corr_VISal.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+            r_corr_VISal.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
             x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
             plt.plot(x, spontPCA_data[0]['var_explained'], '-p')
         elif target_area == 'VISam':
             fr_am.append(spontPCA_data[0]['Fraction of PCs'])
-            p_corr_VISam.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-            r_corr_VISam.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+            p_corr_VISam.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+            r_corr_VISam.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
             x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
             plt.plot(x, spontPCA_data[0]['var_explained'], '-k')
         elif target_area == 'VISl':
@@ -199,6 +200,7 @@ elif stim_type == 'spont':
             r_corr_VISl.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
             x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
             plt.plot(x, spontPCA_data[0]['var_explained'], '-b')
+
 
     plt.xlabel('Fraction of Dimensions')
     plt.ylabel('Variance explained')
