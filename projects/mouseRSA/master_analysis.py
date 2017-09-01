@@ -353,10 +353,11 @@ def get_all_kt_matrix(exps_grouped, distance_metric = 'kt'):
         resps = get_unfolded_rsm(exps_grouped)
         kt = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(resps, distance_metric))
         
-        
+    np.fill_diagonal(kt,np.nan)
+
     kt_df=pd.DataFrame(data=kt,columns=exps_grouped.targeted_structure,index=exps_grouped.targeted_structure)
     
-   
+
                 
     return kt_df
 
@@ -384,6 +385,56 @@ def get_all_kt_matrix_labeled(exps_grouped, distance_metric = 'kt'):
 
                  
     return kt_df
+
+
+def get_all_kt_multiframe_labeled(exps_grouped, distance_metric = 'kt'):
+    kt = np.zeros((len(exps_grouped),len(exps_grouped)))
+    
+    
+    if distance_metric == 'kt':
+        for i,rsm1 in enumerate(exps_grouped.rsm):
+            for j,rsm2 in enumerate(exps_grouped.rsm): 
+                if i<j:
+                    kt[i,j]=get_kt(rsm1.values,rsm2.values)
+            
+        kt = np.triu(kt) + np.triu(kt, 1).T 
+    else:
+        resps = get_unfolded_rsm(exps_grouped)
+        kt = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(resps, distance_metric))
+        
+    columns=[]
+    for i,r in exps_grouped.iterrows():
+        string=(r.targeted_structure,r.cre_line, r.imaging_depth)
+        columns.append(string)
+        
+        
+        
+    
+    mi = pd.MultiIndex(levels=[targeted_structures,cre_lines,imaging_depths,],
+           labels=[replace_str_w_index(zip(*columns)[0],targeted_structures),
+                   replace_str_w_index(zip(*columns)[1],cre_lines),
+                   replace_str_w_index(zip(*columns)[2],imaging_depths)],
+           names=['Area', 'Cre', 'Depth'])
+
+    kt_mi = pd.DataFrame(kt, index=mi, columns=mi)
+    
+                 
+    return kt_mi
+
+def replace_str_w_index(list_to_replace, reference_list):
+    """Takes a list with values, and replaces those values with their position in reference list.
+    For use in making MultiIndex"""
+    
+    final_list = np.zeros((len(list_to_replace)))
+    for i, el in enumerate(reference_list):
+        is_here = np.where(np.array(list_to_replace)==el, i,0)
+        
+        final_list += is_here
+        
+    return final_list
+    
+    
+
 
 def get_unfolded_rsm(exps_grouped):
     """Takes the result of get_experiments_grouped and performs a 2D embedding on the rsms.
