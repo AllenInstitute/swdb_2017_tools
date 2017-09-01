@@ -17,10 +17,6 @@ drive_path = '/data/dynamic-brain-workshop/brain_observatory_cache/'
 
 from allensdk.core.brain_observatory_cache import BrainObservatoryCache
 
-manifest_file = os.path.join(drive_path,'brain_observatory_manifest.json')
-print manifest_file
-
-boc = BrainObservatoryCache(manifest_file=manifest_file)
 
 def get_experiments_grouped(exps,targeted_structures,cre_lines,imaging_depths, stim_type='all',
                             rsm_name = 'rsa_mean_mean_mahala', cluster = None,
