@@ -1,14 +1,26 @@
+# -*- coding: utf-8 -*-
+import os
+import deconvolution_tools.deconvolution_tools as dt
+import numpy as np
+import pandas as pd
+import time as t
+import sys
+import define_ensembles as de
+import h5py
+import matplotlib.pyplot as plt
+import networkx as nx
+import EnsembleCorrelationFunctions as ecf
+import matplotlib.pyplot as plt
+
 def exp_to_ensembles(boc,ophys_experiment_id, stimulus, verbose=False):
-
     start_time = t.time()
-
     if verbose:
         dataset = boc.get_ophys_experiment_data(ophys_experiment_id=ophys_experiment_id)
-        metadata = dataset.get_metadata()
         print str(dataset.number_of_cells) + ' Neurons in Experiment'
         plt.imshow(dataset.get_max_projection())
         plt.show()
 
+    metadata = dataset.get_metadata()
     spikes, timestamps, spike_times, isis = dt.get_epoch_spiking_data(boc, ophys_experiment_id,num_std=5)
 
     if verbose:
@@ -49,4 +61,4 @@ def exp_to_ensembles(boc,ophys_experiment_id, stimulus, verbose=False):
         print('Core Ensembles determined – ' + str(t.time()-start_time) +' elapsed')
 
 
-    return CE_final, cliques, ensembles, metadata
+    return cliques, CE_final, ensembles, cellID, metadata
