@@ -11,12 +11,8 @@ the paper Visual stimuli recruit intrinsically generated cortical ensembles
 Jae-eun Kang Miller, Inbal Ayzenshtat, Luis Carrillo-Reid, and Rafael Juste 
 (PNAS 2014). The following language is taken from this paper.
 
-The similarity between ensembles was evaluated using:
-    
-1. Pearson’s correlation coefficient r (using np.corrcoef())
-
-2. r was then converted to the normally distributed variable z using the 
-Fisher z-transformation
+The similarity between ensembles was evaluated using: (1) Pearson correlation r
+(2) Fisher transform of r
 
 A threshold for significant correlation was established for each pairwise 
 comparison. Establishing a threshold for each comparison is important because 
@@ -57,7 +53,8 @@ def generate_threshold_surrogate(ens_a,ens_b,permute_num):
         tmp_perm = np.random.permutation(ens_b) # permute one ensemble while keeping other stable
         r = np.corrcoef(ens_a,tmp_perm)[0,1] # Pearson Correlation
         surr_corr[k] = 0.5*np.log((1+r)/(1-r)) # Fisher z transform
-        thresh_final = np.percentile(surr_corr,95) # percentile function
+    
+    thresh_final = np.percentile(surr_corr,95) # percentile function
             
     return thresh_final # return bound for Fisher z transform
 
@@ -66,6 +63,26 @@ def generate_threshold_surrogate(ens_a,ens_b,permute_num):
 # by using meshgrid and taking the upper triangle
 
 def EnsembleCorrelations(ensemble_array,surr_num):
+    
+    '''
+    Parameters
+    -----------
+    ensemble_array: numpy array
+        [cells, ensembles (binarized, ordered)]
+    
+    surr_num: int
+        Number of desired surrogate ensembles
+        
+    Returns
+    -----------
+    ensemble_matrix:
+        Return matrix of ensemble pairs above threshold
+        size rows-->cells, cols-->ensembles, but in pairs!
+    above_thresh_ensembles_boot: 
+        Indices of coupled pairs, numpy arrayof pair indices (2 columns)
+    z_values_boot:
+        Fisher-z values of selected ensembles
+    '''
 
     cell_len = ensemble_array.shape[0]
     num_ensembles = ensemble_array.shape[1]
@@ -114,13 +131,10 @@ def EnsembleCorrelations(ensemble_array,surr_num):
         
     # Return matrix of ensembles above threshold
     # size rows-->cells, cols-->ensembles
-    return ensemble_matrix 
-
     # Return indices of coupled pairs, tuple of lists
-    return above_thresh_ensembles_boot
-    
     # Return Fisher-z values of selected ensembles
-    return z_values_boot
+    return ensemble_matrix, above_thresh_ensembles_boot, z_values_boot
+
 
     # Return all Fisher z values
     # return F
