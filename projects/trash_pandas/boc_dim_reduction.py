@@ -63,12 +63,7 @@ else:
     pr_spont_smooth = np.concatenate(out['pupil smooth']['spont'][0:nTrials], axis = 0)
     rs_spont_smooth = np.concatenate(out['running speed smooth']['spont'][0:nTrials], axis = 0)
 
-f_mean = np.nanmean(dff_spont, axis =1)
-f_std = np.nanmean(dff_spont, axis=1)
-for i in range(0, len(f_mean)):
-    dff_spont[i,:] = (dff_spont[i,:] - f_mean[i])/f_std[i]
-pr_spont = (pr_spont - np.nanmean(pr_spont))/np.nanstd(pr_spont)
-
+dff_spont = z_score(dff_spont)
 
 # get df/f traces for natural scences
 image = 2
