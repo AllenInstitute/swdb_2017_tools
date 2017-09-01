@@ -284,6 +284,31 @@ def get_all_kt_matrix(exps_grouped, distance_metric = 'kt'):
                 
     return kt_df
 
+def get_all_kt_matrix_labeled(exps_grouped, distance_metric = 'kt'):
+    kt = np.zeros((len(exps_grouped),len(exps_grouped)))
+    
+    
+    if distance_metric == 'kt':
+        for i,rsm1 in enumerate(exps_grouped.rsm):
+            for j,rsm2 in enumerate(exps_grouped.rsm): 
+                if i<j:
+                    kt[i,j]=get_kt(rsm1.values,rsm2.values)
+            
+        kt = np.triu(kt) + np.triu(kt, 1).T 
+    else:
+        resps = get_unfolded_rsm(exps_grouped)
+        kt = scipy.spatial.distance.squareform(scipy.spatial.distance.pdist(resps, distance_metric))
+        
+    columns=[]
+    for i,r in exps_grouped.iterrows():
+        string=(r.targeted_structure,r.cre_line, r.imaging_depth)
+        columns.append(string)
+    kt_df=pd.DataFrame(data=kt,columns=columns,index=columns)
+
+
+                 
+    return kt_df
+
 def get_unfolded_rsm(exps_grouped):
     """Takes the result of get_experiments_grouped and performs a 2D embedding on the rsms.
     Output: 2D numpy array of length number_experiments"""
