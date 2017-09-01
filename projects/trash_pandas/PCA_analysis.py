@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 from trash_cache import TrashCache
@@ -11,8 +12,8 @@ Script for analyzing PCA data that is stored in the trash_cache
 -------------------------------------------------------------------------
 '''
 
-stim_type = "spont"
-images = [1,10,20,30,40,50]
+stim_type = "natural_scenes"
+images = [1]
 # ------------------- plotting and analysis for natural scenes -----------------
 if stim_type == 'natural_scenes':
 
@@ -35,18 +36,21 @@ if stim_type == 'natural_scenes':
         fr_al = []
         fr_am = []
         fr_l = []
+
         p_corr_VISpm = []
         p_corr_VISp = []
         p_corr_VISrl = []
         p_corr_VISal = []
         p_corr_VISam = []
         p_corr_VISl = []
+
         r_corr_VISpm = []
         r_corr_VISp = []
         r_corr_VISrl = []
         r_corr_VISal = []
         r_corr_VISam = []
         r_corr_VISl = []
+
         plt.figure()
         for exp in exps:
             spontPCA_data = tc.load_experiments([exp])
@@ -85,8 +89,8 @@ if stim_type == 'natural_scenes':
                 plt.plot(x, spontPCA_data[0]['var_explained'], '-k')
             elif target_area == 'VISl':
                 fr_l.append(spontPCA_data[0]['Fraction of PCs'])
-                p_corr_VISl.append(max(spontPCA_data[0]['corr_mat'].T['pupil smooth']))
-                r_corr_VISl.append(max(spontPCA_data[0]['corr_mat'].T['running speed smooth']))
+                p_corr_VISl.append(max(abs(spontPCA_data[0]['corr_mat'].T['pupil smooth'])))
+                r_corr_VISl.append(max(abs(spontPCA_data[0]['corr_mat'].T['running speed smooth'])))
                 x = np.linspace(0,1, len(spontPCA_data[0]['var_explained']))
                 plt.plot(x, spontPCA_data[0]['var_explained'], '-b')
 
