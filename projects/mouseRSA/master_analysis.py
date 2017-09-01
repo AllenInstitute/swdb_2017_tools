@@ -136,6 +136,20 @@ def get_experiments_grouped(exps,targeted_structures,cre_lines,imaging_depths, s
         
     return remove_nan_rsms(exps_grouped)
 
+def get_kt(rsm1,rsm2):
+    '''Gets Kendall tau-a measurements between two RDM matrices, first vectorizes matrices
+    and then computes kt using scipy kendall-tau function'''
+    np.fill_diagonal(rsm1,0)
+    np.fill_diagonal(rsm2,0)
+    vec_rsm1 = vectorize(rsm1)
+    #
+    vec_rsm2 = vectorize(rsm2)
+
+    #vec_rsm1 = scipy.spatial.distance.squareform(rsm1)
+    #vec_rsm2 = scipy.spatial.distance.squareform(rsm2)
+    k = kt(vec_rsm1, vec_rsm2).correlation
+    return k
+
 def get_kt_matrix(exps_grouped,compare):
     kt_dfs = []
     if compare=='targeted_structure':
@@ -212,21 +226,87 @@ def get_population_rf(boc, experiment_id):
     return pop_rf
 
 
-def get_rf_coms(exps):
-    coms = []
+def get_rfs(exps):
+    """Just loads the receptive field matrics and returns a list of them."""
+    rfs = []
     for exp_id in exps.id.values:
+    
         try:
             rf = get_population_rf(boc, exp_id)
-            if rf.shape== (8,14):
-                # 8 deg sparse noise
-                com = np.array(center_of_mass(rf))*9.3 # to degrees
-            else:
-                com = np.array(center_of_mass(rf))*4.6 # to degrees
+        except: 
+            rf.append(np.array([np.nan, np.nan]))
+        rfs.append(rf)
+    return rfs
 
-        except:
-            com = (np.nan, np.nan)
+def get_weighted_stdev(rf,com):
+    factor = 9.3 if rf.shape== (8,14) else 4.6
+    
+    #first get distances
+    ds =[]
+    ws = []
+    
+    # normalize rf to 1
+    rf = rf/rf.mean()
+    
+    for i in range(rf.shape[0]):
+        for j in range(rf.shape[1]):
+            ds.append(np.linalg.norm([i*factor-com[0],j*factor-com[1]]))
+            ws.append(rf[i,j])
+            
+    std = np.std( np.array(ds) * np.array(ws) )
+    
+    return std
+
+
+def get_valid_cluster(rfs, exps, center):
+    """Returns a boolean array of length exps for this cluster. 
+    exps = experiment dataframe
+    rfs = list of rf arrays
+    center = length 2. position."""
+    # First get RF center of masses
+    coms = []
+    for rf in rfs:
+        
+        
+        if rf.shape== (8,14):
+                # 8 deg sparse noise
+            com = np.array(center_of_mass(rf))*9.3 # to degrees
+        elif rf.shape== (2,):
+            com = np.array([np.nan, np.nan])
+        else:
+            com = np.array(center_of_mass(rf))*4.6 # to degrees
+
+
         coms.append(com)
-    return coms
+        
+    # now get distances to center
+    center = np.array(center)
+    dists = np.linalg.norm(np.array(coms)-center,axis=1)
+
+    areas = exps.targeted_structure
+    area_stds = {}
+    # get average standard deviations: RMS distance from centroid
+    for area in areas.unique():
+        this_std = []
+        # loop through all exps
+        for i,rf in enumerate(rfs):
+            if area != areas[i]: 
+                continue
+            if rf.shape== (2,): 
+                this_std.append(np.nan)
+            else:
+                this_std.append(get_weighted_stdev(rf, coms[i]))
+        area_stds[area] = np.nanmean(this_std)
+        
+    # create boolean array. True if < area's stdev
+    valids = []
+    for i in range(len(dists)):
+        if dists[i] < area_stds[areas[i]]/2:
+            valids.append(True)
+        else: valids.append(False)
+    
+        
+    return valids
 
 
 def vectorize(mat):
