@@ -95,7 +95,7 @@ def get_corr_matrix(dictionary, figure=True):
     return coef_mat
 
 
-def get_correlations_from_features(features, exp_id, figure=True):
+def get_correlations_from_features(boc, features, exp_id, figure=True):
     """
     Parameters:
     ----------
