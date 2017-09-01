@@ -407,7 +407,9 @@ def get_all_kt_multiframe_labeled(exps_grouped, distance_metric = 'kt'):
         string=(r.targeted_structure,r.cre_line, r.imaging_depth)
         columns.append(string)
         
-        
+    targeted_structures = exps_grouped.targeted_structure.unique()
+    cre_lines = exps_grouped.cre_line.unique()
+    imaging_depths = exps_grouped.imaging_depth.unique()    
         
     
     mi = pd.MultiIndex(levels=[targeted_structures,cre_lines,imaging_depths,],
