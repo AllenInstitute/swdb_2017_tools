@@ -16,13 +16,13 @@ def pearson_corr_coeff(x, y):
     c: The pearson correlation coefficient between x and y
 
     '''
-    x = x.reshape(-1,1)
-    y = y.reshape(-1,1)
-    x_inds = np.where(~np.isnan(x))
-    y_inds = np.where(~np.isnan(y))
+    x = np.squeeze(x.reshape(-1,1))
+    y = np.squeeze(y.reshape(-1,1))
+    x_inds = np.where(np.isnan(x))[0]
+    y_inds = np.where(np.isnan(y))[0]
     nan_inds = np.sort(np.unique(np.concatenate((x_inds, y_inds))))
-    x = x[nan_inds]
-    y = y[nan_inds]
+    x = np.delete(x, nan_inds)
+    y = np.delete(y, nan_inds)
     x_diffs = np.ediff1d(x)
     y_diffs = np.ediff1d(y)
     num = np.dot(x_diffs,y_diffs)
