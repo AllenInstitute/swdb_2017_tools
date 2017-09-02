@@ -148,6 +148,8 @@ def get_kt(rsm1,rsm2):
     #vec_rsm1 = scipy.spatial.distance.squareform(rsm1)
     #vec_rsm2 = scipy.spatial.distance.squareform(rsm2)
     k = kt(vec_rsm1, vec_rsm2).correlation
+    
+    
     return k
 
 def get_kt_matrix(exps_grouped,compare):
