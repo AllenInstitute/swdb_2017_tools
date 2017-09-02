@@ -3,6 +3,7 @@
 import numpy as np
 import os
 import h5py
+import scipy
 
 def get_all_representational_similarity_matrices(BrainObservatoryCache, session_type, 
                     stimulus_type, drive_path, file_name=None, ids=None, 
@@ -65,12 +66,12 @@ def get_all_representational_similarity_matrices(BrainObservatoryCache, session_
     
     #load all experiments of interest
     exps = BrainObservatoryCache.get_experiment_containers(file_name=file_name, ids=ids, 
-                                         targeted_structures=targeted_structures, 
-                                         imaging_depths=imaging_depths, 
-                                         cre_lines=cre_lines, 
-                                         transgenic_lines=transgenic_lines, 
-                                         include_failed=include_failed)
-    
+                                     targeted_structures=targeted_structures, 
+                                     imaging_depths=imaging_depths, 
+                                     cre_lines=cre_lines, 
+                                     transgenic_lines=transgenic_lines, 
+                                     include_failed=include_failed)
+
     #Determine the size of the images of interest
     first_session_id = BrainObservatoryCache.get_ophys_experiments(
                 experiment_container_ids=[exps[0]['id']], 
