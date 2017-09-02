@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram
 import os
+import seaborn as sns
 
 def create_dendrogram(d,nodes = None,leaves = None, inner_nodes = None):
     '''
@@ -38,7 +39,7 @@ def create_dendrogram(d,nodes = None,leaves = None, inner_nodes = None):
         G           = nx.DiGraph(d)
         nodes       = G.nodes()
         leaves      = set( n for n in nodes if G.out_degree(n) == 0 )
-        inner_nodes = [ n for n in nodes if G.out_degree(n) > 0 ]
+        inner_nodes = sorted([ n for n in nodes if G.out_degree(n) > 0 ])
     
     # Compute the size of each subtree
     subtree = dict( (n, [n]) for n in leaves )
@@ -68,14 +69,16 @@ def create_dendrogram(d,nodes = None,leaves = None, inner_nodes = None):
             i, j = index[tuple(sorted(subtree[x]))], index[tuple(sorted(subtree[y]))]
             Z.append([i, j, float(len(subtree[n])), len(z)]) # <-- float is required by the dendrogram function
             index[z] = k
-            subtree[z] = list(z)
+            subtree[z] = sorted(list(z))
             x = z
             k += 1
     
-   
+       
     # Visualize
-    plt.figure(figsize = [10,6])
-    R = dendrogram(Z, labels=leaves, leaf_rotation = 90,leaf_font_size = 10)
-    plt.show()
+    sns.set_context("talk")
+    sns.set_style("white")
+    R = dendrogram(Z, labels=leaves,leaf_font_size = 30,orientation = 'left')
+    plt.figure(figsize = [15,5])
     
     return Z
+
